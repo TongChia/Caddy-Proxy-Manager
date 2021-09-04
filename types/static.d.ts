@@ -57,3 +57,57 @@ declare module '*.png' {
 }
 
 /* CUSTOM: ADD YOUR OWN HERE */
+type SubRouteHandler = {
+  handler: 'subroute';
+  routes: Route[];
+};
+
+type RewriteHandler = {
+  handler: 'rewrite';
+  url: string;
+  strip_path_prefix: string;
+};
+
+type StaticResponseHandler = {
+  handler: 'static_response';
+  body: string;
+};
+
+type ReverseProxyHandler = {
+  handler: 'reverse_proxy';
+  headers?: {};
+  upstreams: { dial: string }[];
+};
+
+type Handler =
+  | RewriteHandler
+  | SubRouteHandler
+  | StaticResponseHandler
+  | ReverseProxyHandler;
+
+type Route = {
+  handle: Handler[];
+  match?: { host: string[]; path: string[] }[];
+  terminal: boolean;
+};
+
+type Service = {
+  listen: string[];
+  routes: Route[];
+  errors?: { routes: {}[] };
+};
+
+type Row = {
+  name: string;
+  listen: string[];
+  source: string[];
+  destination: FlatRoute[];
+  ssl: string;
+  access: string;
+  status: string;
+};
+
+type FlatRoute = {
+  path: string;
+  handle?: Handler;
+};

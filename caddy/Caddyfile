@@ -1,0 +1,22 @@
+:81 {
+    log
+
+    reverse_proxy localhost:8080
+
+    handle_path /api/* {
+        rewrite /api/* {path}
+        reverse_proxy localhost:2019 {
+        	header_up Host {upstream_hostport}
+        	header_up X-Forwarded-Host {host}
+        }
+    }
+}
+
+http://test.localhost:10080 {
+    respond / "Hello, world!"
+}
+
+https://localhost:10443, https://dev.localhost:10443 {
+    tls internal
+    reverse_proxy localhost:81
+}

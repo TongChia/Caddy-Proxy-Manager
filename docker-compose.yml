@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  caddy:
+    build:
+      context: .
+      dockerfile: caddy/Dockerfile
+    network_mode: host
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./.tmp/data:/data
