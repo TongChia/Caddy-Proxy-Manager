@@ -1,10 +1,11 @@
 import { createTheme } from '@material-ui/core/styles';
+import { green } from '@material-ui/core/colors';
 
 export const light = createTheme({
   palette: {
-    // primary: {
-    //   // main: '#FE6B8B',
-    // },
+    primary: {
+      main: green[400],
+    },
   },
   overrides: {
     MuiCssBaseline: {
@@ -25,8 +26,8 @@ export const light = createTheme({
         borderRadius: 3,
         border: 0,
         color: 'white',
-        height: 48,
-        padding: '0 30px',
+        // height: 48,
+        // padding: '0 30px',
         boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
       },
     },
@@ -56,8 +57,6 @@ export const dark = createTheme({
         borderRadius: 3,
         border: 0,
         color: 'white',
-        height: 48,
-        padding: '0 30px',
         boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
       },
     },

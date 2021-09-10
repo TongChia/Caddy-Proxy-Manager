@@ -9,28 +9,31 @@ import {
   TableCell,
   TableRow,
 } from '@material-ui/core';
-import { h, Fragment } from 'preact';
-import { makeStyles } from '@material-ui/core/styles';
+import { h, Fragment, createElement } from 'preact';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { green } from '@material-ui/core/colors';
 import { useState } from 'preact/hooks';
 
-const useStyles = makeStyles({
-  chip: {
-    marginRight: '10px',
-    borderRadius: '4px',
-    padding: '0 4px',
-    color: '#555',
-    '&:hover': {
-      color: 'white',
-      background: green[400],
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    chip: {
+      marginRight: '10px',
+      borderRadius: '4px',
+      '&.with-ssl:hover': {
+        color: 'white',
+        background: green[400],
+        '&>.MuiChip-icon': {
+          color: 'white',
+        },
+      },
     },
-  },
-  icon: {
-    fontSize: '1rem',
-    background: green[400],
-    color: 'white',
-  },
-});
+    icon: {
+      fontSize: '14px',
+      background: green[400],
+      color: 'white',
+    },
+  }),
+);
 
 export function Destination({ path, handle }: FlatRoute) {
   const classes = useStyles();
@@ -74,34 +77,61 @@ export function Destination({ path, handle }: FlatRoute) {
   return 'nothing!';
 }
 
-export function SourceChip({ listen, source }: Row) {
+export function SourceChip(s: string) {
   const classes = useStyles();
-
-  if (source?.length)
-    return (
-      <>
-        {source.map((s) => (
-          <Chip
-            size="small"
-            label={' ' + s + ' '}
-            onClick={() => window.open(`http://${s}`, '_blank')}
-            className={classes.chip}
-          />
-        ))}
-      </>
-    );
-
+  const label = s.startsWith(':') ? `*${s}` : s;
+  const url = s.startsWith(':')
+    ? `http://${document.domain + s}`
+    : `http://${s}`;
   return (
     <Chip
       size="small"
-      label={'*' + listen}
-      onClick={() => window.open(`http://${document.domain}${listen}`)}
+      label={label}
+      onClick={() => window.open(url, '_blank')}
       className={classes.chip}
     />
   );
 }
 
-export function MyTableRow(row: Row) {
+function SourceChipMapper(sources: string[]) {
+  const classes = useStyles();
+
+  const ss = sources.reduce<{
+    [key: string]: { label: string; url: string; ssl: boolean };
+  }>((r, src) => {
+    const ssl = src.endsWith(':443');
+    const s = src.replace(/\:443|\:80/, '');
+
+    if (r.hasOwnProperty(s)) {
+      r[s].ssl = r[s].ssl || ssl;
+    } else {
+      r[s] = {
+        ssl,
+        label: r[s]?.label || s.startsWith(':') ? `*${s}` : s,
+        url: s.startsWith(':')
+          ? `http://${document.domain + s}`
+          : `http://${s}`,
+      };
+    }
+    return r;
+  }, {});
+
+  return Object.entries(ss).map(([s, { label, url, ssl }]) => (
+    <Chip
+      size="small"
+      icon={
+        ssl
+          ? ((<Icon style={{ fontSize: '1rem' }}>https</Icon>) as JSX.Element)
+          : undefined
+      }
+      label={label}
+      onClick={() => window.open(url, '_blank')}
+      className={(ssl ? 'with-ssl ' : '') + classes.chip}
+    />
+  ));
+}
+
+export function HostTableRow(row: Row) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -116,9 +146,7 @@ export function MyTableRow(row: Row) {
             <Icon>{open ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}</Icon>
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row">
-          {SourceChip(row)}
-        </TableCell>
+        <TableCell>{SourceChipMapper(row.source)}</TableCell>
         <TableCell>{Destination(row.destination[0])}</TableCell>
         <TableCell>{row.ssl}</TableCell>
         <TableCell>{row.access}</TableCell>
@@ -138,11 +166,7 @@ export function MyTableRow(row: Row) {
                   {row.destination.slice(1).map((d) => (
                     <TableRow>
                       <TableCell width="64px">&nbsp;</TableCell>
-                      <TableCell width="30%">
-                        &nbsp;&nbsp;&nbsp;&nbsp;
-                        <Icon fontSize="small">subdirectory_arrow_right</Icon>
-                        <Chip size="small" label={d.path} />
-                      </TableCell>
+                      <TableCell width="30%">&nbsp;</TableCell>
                       <TableCell width="25%">{Destination(d)}</TableCell>
                       <TableCell width="15%">&nbsp;</TableCell>
                       <TableCell width="100px">{row.access}</TableCell>

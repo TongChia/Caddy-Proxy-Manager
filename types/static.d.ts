@@ -85,9 +85,11 @@ type Handler =
   | StaticResponseHandler
   | ReverseProxyHandler;
 
+type Match = { host: string[]; path: string[] };
+
 type Route = {
   handle: Handler[];
-  match?: { host: string[]; path: string[] }[];
+  match?: Match[];
   terminal: boolean;
 };
 
@@ -99,9 +101,10 @@ type Service = {
 
 type Row = {
   name: string;
-  listen: string[];
+  // listen: string[];
   source: string[];
   destination: FlatRoute[];
+  _handle?: SubRouteHandler;
   ssl: string;
   access: string;
   status: string;

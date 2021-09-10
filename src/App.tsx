@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
     AppBar: {},
     title: {
       flexGrow: 1,
+      color: 'white',
     },
     iconButton: {
       color: 'white',
@@ -87,8 +88,8 @@ function App() {
             <Tabs
               value={1}
               // onChange={handleChange}
-              indicatorColor="secondary"
-              textColor="secondary"
+              // indicatorColor="secondary"
+              // textColor="secondary"
               variant="scrollable"
               scrollButtons="auto"
             >

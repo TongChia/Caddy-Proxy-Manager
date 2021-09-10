@@ -1,7 +1,7 @@
 :81 {
     log
 
-    reverse_proxy localhost:8080
+    reverse_proxy 192.168.123.110:8080
 
     handle_path /api/* {
         rewrite /api/* {path}
@@ -12,11 +12,12 @@
     }
 }
 
-http://test.localhost:10080 {
+http://test.localhost, https://test.localhost, http://test2.localhost  {
+    tls internal
     respond / "Hello, world!"
 }
 
-https://localhost:10443, https://dev.localhost:10443 {
+http://dev.localhost, https://dev.localhost {
     tls internal
     reverse_proxy localhost:81
 }

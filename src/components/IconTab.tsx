@@ -5,7 +5,8 @@ import { h } from 'preact';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     icon: {
-      margin: '-6px 6px -6px 0',
+      fontSize: '1.25rem',
+      margin: '-5px 5px -5px 0',
     },
   }),
 );

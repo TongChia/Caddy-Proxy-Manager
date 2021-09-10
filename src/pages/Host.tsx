@@ -3,7 +3,6 @@ import { useState, useEffect } from 'preact/hooks';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Box,
-  Icon,
   Paper,
   Typography,
   TableContainer,
@@ -12,16 +11,18 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  IconButton,
-  Collapse,
+  Button,
 } from '@material-ui/core';
-import { Destination, MyTableRow, SourceChip } from '../components/ChipLink';
+import { HostTableRow } from '../components/ChipLink';
+import isEqual from 'lodash/isEqual';
+import { HostDialog } from './HostDialog';
 
 const useStyles = makeStyles({
   table: {
-    minWidth: 650,
+    minWidth: 640,
   },
 });
+
 const routeReducer = (
   results: FlatRoute[] & { parent?: string },
   { match, handle }: Route,
@@ -56,39 +57,66 @@ const routeReducer = (
   return results;
 };
 
-function createData([name, srv]: [string, Service], i: number, o: any[]): Row {
+function serveReducer(results: Row[], [name, srv]: [string, Service]): Row[] {
   const { routes, listen } = srv;
-  const source: string[] = [];
-  const destination = routes
-    .reduce(routeReducer, Object.assign([], { parent: '' }))
-    .sort((a, b) => a.path.length - b.path.length);
 
-  routes.forEach(({ match }) => {
-    if (match) {
-      match.forEach(({ host }) => {
-        if (host?.length) {
-          host.forEach((r) => {
-            if (![':80', ':443'].includes(listen[0])) source.push(r + listen);
-          });
-        }
-      });
-    }
-  });
+  if (routes.some(({ match }) => match?.some((m) => m.host?.length))) {
+    routes.forEach(({ match, handle }) => {
+      if (match?.some((m) => m.host)) {
+        match.forEach(({ host }) => {
+          if (host) {
+            const sources = results.reduce<string[]>(
+              (ss, row) => ss.concat(row.source),
+              [],
+            );
+            const subRouteHandle = handle.find(
+              ({ handler }) => handler == 'subroute',
+            ) as SubRouteHandler | undefined;
 
-  return {
-    name,
-    listen,
-    source,
-    destination,
-    ssl: "Let's Encrypt",
-    access: 'Public',
-    status: 'Online',
-  };
+            if (subRouteHandle) {
+              const sameRow = results.find((_r) =>
+                isEqual(_r._handle, subRouteHandle),
+              );
+              if (sameRow) {
+                host.forEach((s) => sameRow.source.push(s + listen));
+              } else {
+                results.push({
+                  name,
+                  source: host.map((s) => s + listen),
+                  _handle: subRouteHandle,
+                  destination: subRouteHandle.routes
+                    .reduce(routeReducer, Object.assign([], { parent: '' }))
+                    .sort((a, b) => a.path.length - b.path.length),
+                  ssl: "Let's Encrypt",
+                  access: 'Public',
+                  status: 'Online',
+                });
+              }
+            }
+          }
+        });
+      }
+    });
+  } else {
+    results.push({
+      name,
+      source: listen,
+      destination: routes
+        .reduce(routeReducer, Object.assign([], { parent: '' }))
+        .sort((a, b) => a.path.length - b.path.length),
+      ssl: 'None',
+      access: 'Public',
+      status: 'Online',
+    });
+  }
+
+  return results;
 }
 
 export function Hosts() {
   const classes = useStyles();
   const [rows, setRows] = useState<Row[]>([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     fetch('/api/config/apps')
@@ -97,20 +125,30 @@ export function Hosts() {
         console.log(apps.http.servers);
         console.log(apps.tls);
         setRows(
-          Object.entries<Service>(apps.http.servers).map<Row>(createData),
+          // Object.entries<Service>(apps.http.servers).map<Row>(createData),
+          Object.entries<Service>(apps.http.servers).reduce<Row[]>(
+            serveReducer,
+            [],
+          ),
         );
       });
   }, []);
 
-  // console.log(rows);
-
   return (
     <Box pt={2}>
       <Box mb={2}>
+        <Button
+          size="small"
+          color="primary"
+          style={{ float: 'right' }}
+          onClick={() => setOpen(true)}
+        >
+          {'Add Host'}
+        </Button>
         <Typography variant="h5">Hosts</Typography>
       </Box>
       <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="simple table">
+        <Table className={classes.table}>
           <TableHead>
             <TableRow>
               <TableCell width="64px">&nbsp;</TableCell>
@@ -122,9 +160,10 @@ export function Hosts() {
               <TableCell width="64px">&nbsp;</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>{rows.map(MyTableRow)}</TableBody>
+          <TableBody>{rows.map(HostTableRow)}</TableBody>
         </Table>
       </TableContainer>
+      <HostDialog open={open} data={{}} onClose={() => setOpen(false)} />
     </Box>
   );
 }

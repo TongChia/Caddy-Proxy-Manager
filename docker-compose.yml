@@ -5,7 +5,11 @@ services:
     build:
       context: .
       dockerfile: caddy/Dockerfile
-    network_mode: host
+#    network_mode: host
+    ports:
+      - "1081:81"
+      - "1080:80"
+      - "1443:443"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - ./.tmp/data:/data
