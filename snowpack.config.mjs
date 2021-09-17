@@ -3,6 +3,7 @@
 
 export default {
   alias: {
+    'react/jsx-runtime': 'preact/jsx-runtime',
     react: 'preact/compat',
     'react-dom': 'preact/compat',
   },

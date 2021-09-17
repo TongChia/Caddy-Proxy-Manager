@@ -3,25 +3,20 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import logo from './logo.svg';
 import './App.css';
-import { ThemeProvider, makeStyles, Theme } from '@material-ui/core/styles';
-import {
-  Container,
-  Box,
-  Icon,
-  CssBaseline,
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Tabs,
-} from '@material-ui/core';
+import { makeStyles } from '@mui/styles';
+import { ThemeProvider } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import AppBar from '@mui/material/AppBar';
+import Container from '@mui/material/Container';
+import Icon from '@mui/material/Icon';
+import IconButton from '@mui/material/IconButton';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
 import { useTranslation } from 'react-i18next';
-import { IconTab } from './components/IconTab';
 import { light, dark } from './themes';
-import { Hosts } from './pages/Host';
 import { useToggle } from './utils';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
     color: 'white',
@@ -59,7 +54,6 @@ function App() {
 
   return (
     <ThemeProvider theme={darkTheme ? dark : light}>
-      <CssBaseline />
       <Box className="App" pt={8}>
         <AppBar>
           <Container maxWidth="lg" className={classes.p0}>
@@ -74,37 +68,6 @@ function App() {
             </Toolbar>
           </Container>
         </AppBar>
-        <AppBar position="static" color="default" className={classes.SubBar}>
-          <Container maxWidth="lg" className={classes.p0}>
-            <Tabs
-              value={1}
-              onChange={console.log}
-              // indicatorColor="secondary"
-              // textColor="secondary"
-              variant="scrollable"
-              scrollButtons="auto"
-            >
-              <IconTab icon="home" label="Dashboard" {...a11yProps(0)} />
-              <IconTab icon="list" label="Hosts" {...a11yProps(1)} />
-              <IconTab
-                icon="lock_open"
-                label="Access Lists"
-                {...a11yProps(2)}
-              />
-              <IconTab
-                icon="security"
-                label="SSL Certificates"
-                {...a11yProps(3)}
-              />
-              <IconTab icon="manage_accounts" label="Users" {...a11yProps(4)} />
-              <IconTab icon="description" label="Audit Log" {...a11yProps(5)} />
-              <IconTab icon="settings" label="Settings" {...a11yProps(6)} />
-            </Tabs>
-          </Container>
-        </AppBar>
-        <Container maxWidth="lg">
-          <Hosts />
-        </Container>
       </Box>
     </ThemeProvider>
   );
