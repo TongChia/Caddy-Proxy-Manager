@@ -2,3 +2,4 @@
 .snowpack
 build
 node_modules
+.tmp/

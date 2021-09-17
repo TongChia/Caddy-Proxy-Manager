@@ -17,8 +17,8 @@ import { useState } from 'preact/hooks';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     chip: {
-      marginRight: '10px',
-      borderRadius: '4px',
+      margin: 2,
+      borderRadius: 3,
       '&.with-ssl:hover': {
         color: 'white',
         background: green[400],
@@ -70,6 +70,21 @@ export function Destination({ path, handle }: FlatRoute) {
         }
         size="small"
         label={'"' + handle.body + '"'}
+        variant="outlined"
+      />
+    );
+  if (handle.handler == 'file_server')
+    return (
+      <Chip
+        avatar={
+          (
+            <Avatar>
+              <Icon className={classes.icon}>code</Icon>
+            </Avatar>
+          ) as JSX.Element
+        }
+        size="small"
+        label={handle.root || '/'}
         variant="outlined"
       />
     );

@@ -11,7 +11,7 @@ import {
   TextFieldProps,
 } from '@material-ui/core';
 import type { DialogProps } from '@material-ui/core/Dialog/Dialog';
-import { IconTab } from '../components/IconTab';
+import { IconTab } from './IconTab';
 import { Autocomplete, createFilterOptions } from '@material-ui/lab';
 import { useState } from 'preact/hooks';
 
@@ -19,10 +19,43 @@ const filter = createFilterOptions<string>();
 
 export function HostDialog({
   data,
-  onClose = () => {},
+  onClose,
   ...props
 }: { data: {} } & DialogProps) {
   const [hosts, setHosts] = useState(['www.baidu.com']);
+
+  const createHost = () => {
+    const mySrv = {
+      listen: [':80'],
+      routes: [
+        {
+          match: [
+            {
+              host: ['example.com'],
+            },
+          ],
+          handle: [
+            {
+              handler: 'static_response',
+              body: 'hello',
+            },
+          ],
+        },
+      ],
+    };
+
+    fetch('/api/config/apps/http/servers/aaaa', {
+      method: 'PUT',
+      body: JSON.stringify(mySrv),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => response.json())
+      .then((res) => {
+        console.log(res);
+      });
+  };
 
   return (
     <Dialog {...props} onClose={onClose}>
@@ -76,11 +109,8 @@ export function HostDialog({
         </Box>
       </DialogContent>
       <DialogActions>
-        {/*<IconButton onClick={onClose}>Disagree</IconButton>*/}
-        <Button
-          color="primary"
-          onClick={(e) => (onClose ? onClose(e, 'backdropClick') : false)}
-        >
+        {/*<Button onClick={onClose}>Disagree</Button>*/}
+        <Button color="primary" onClick={(e) => createHost()}>
           Agree
         </Button>
       </DialogActions>

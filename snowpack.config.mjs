@@ -1,4 +1,6 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
+// import proxy from 'http2-proxy';
+
 export default {
   alias: {
     react: 'preact/compat',
@@ -20,6 +22,14 @@ export default {
     ],
   ],
   routes: [
+    // {
+    //   match: 'routes',
+    //   src: '/api/.*',
+    //   dest: (req, res) => proxy.web(req, res, {
+    //     hostname: 'localhost',
+    //     port: 8443,
+    //   }),
+    // },
     /* Enable an SPA Fallback in development: */
     {"match": "routes", "src": ".*", "dest": "/index.html"},
   ],

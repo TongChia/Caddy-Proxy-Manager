@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import logo from './logo.png';
+import logo from './logo.svg';
 import './App.css';
 import {
   ThemeProvider,
@@ -12,7 +12,6 @@ import {
   Container,
   Box,
   Icon,
-  Button,
   CssBaseline,
   AppBar,
   Toolbar,
@@ -21,9 +20,11 @@ import {
   Tabs,
   Tab,
 } from '@material-ui/core';
-import { light, dark } from './themes';
+import { useTranslation } from 'react-i18next';
 import { IconTab } from './components/IconTab';
+import { light, dark } from './themes';
 import { Hosts } from './pages/Host';
+import { useToggle } from './utils';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,7 +49,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function App() {
   const [count, setCount] = useState(0);
-  const [useDarkTheme, setTheme] = useState(false);
+  const [darkTheme, toggleTheme] = useToggle();
+  const { t, i18n } = useTranslation();
   const classes = useStyles();
 
   useEffect(() => {
@@ -64,7 +66,7 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={useDarkTheme ? dark : light}>
+    <ThemeProvider theme={darkTheme ? dark : light}>
       <CssBaseline />
       <Box className="App" pt={8}>
         <AppBar>
@@ -74,11 +76,8 @@ function App() {
               <Typography className={classes.title} variant="h6">
                 &nbsp; Caddy Proxy Manager
               </Typography>
-              <IconButton
-                className={classes.iconButton}
-                onClick={() => setTheme(!useDarkTheme)}
-              >
-                <Icon>{useDarkTheme ? 'brightness_4' : 'brightness_5'}</Icon>
+              <IconButton className={classes.iconButton} onClick={toggleTheme}>
+                <Icon>{darkTheme ? 'brightness_4' : 'brightness_5'}</Icon>
               </IconButton>
             </Toolbar>
           </Container>

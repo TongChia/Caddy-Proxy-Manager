@@ -79,11 +79,19 @@ type ReverseProxyHandler = {
   upstreams: { dial: string }[];
 };
 
+type FileServerHandler = {
+  handler: 'file_server';
+  root?: string;
+  index?: string;
+  browse?: string;
+};
+
 type Handler =
   | RewriteHandler
   | SubRouteHandler
   | StaticResponseHandler
-  | ReverseProxyHandler;
+  | ReverseProxyHandler
+  | FileServerHandler;
 
 type Match = { host: string[]; path: string[] };
 

@@ -13,9 +13,9 @@ import {
   TableBody,
   Button,
 } from '@material-ui/core';
-import { HostTableRow } from '../components/ChipLink';
+import { HostTableRow } from '../components/HostTable';
 import isEqual from 'lodash/isEqual';
-import { HostDialog } from './HostDialog';
+import { HostDialog } from '../components/HostDialog';
 
 const useStyles = makeStyles({
   table: {
@@ -92,6 +92,16 @@ function serveReducer(results: Row[], [name, srv]: [string, Service]): Row[] {
                   status: 'Online',
                 });
               }
+            } else {
+              console.log('no sub router srv: ', name);
+              results.push({
+                name,
+                source: host.map((s) => s + listen),
+                destination: [{ path: '', handle: handle[0] }], // TODO: foreach handle
+                ssl: "Let's Encrypt",
+                access: 'Public',
+                status: 'Online',
+              });
             }
           }
         });

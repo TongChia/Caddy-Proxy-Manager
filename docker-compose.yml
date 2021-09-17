@@ -6,10 +6,12 @@ services:
       context: .
       dockerfile: caddy/Dockerfile
 #    network_mode: host
+    command: caddy run --resume -config /etc/caddy/Caddyfile
     ports:
-      - "1081:81"
-      - "1080:80"
-      - "1443:443"
+      - "81:81"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./.tmp/caddy:/config/caddy
       - ./.tmp/data:/data
