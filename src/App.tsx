@@ -1,13 +1,9 @@
 import { h } from 'preact';
+// import { Router } from 'preact-router';
 import { useState, useEffect } from 'preact/hooks';
 import logo from './logo.svg';
 import './App.css';
-import {
-  ThemeProvider,
-  createStyles,
-  makeStyles,
-  Theme,
-} from '@material-ui/core/styles';
+import { ThemeProvider, makeStyles, Theme } from '@material-ui/core/styles';
 import {
   Container,
   Box,
@@ -18,7 +14,6 @@ import {
   Typography,
   IconButton,
   Tabs,
-  Tab,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import { IconTab } from './components/IconTab';
@@ -26,26 +21,23 @@ import { light, dark } from './themes';
 import { Hosts } from './pages/Host';
 import { useToggle } from './utils';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    AppBar: {},
-    title: {
-      flexGrow: 1,
-      color: 'white',
+const useStyles = makeStyles((theme: Theme) => ({
+  title: {
+    flexGrow: 1,
+    color: 'white',
+  },
+  iconButton: {
+    color: 'white',
+  },
+  p0: {
+    padding: 0,
+  },
+  SubBar: {
+    MuiIcon: {
+      margin: '-6px 6px',
     },
-    iconButton: {
-      color: 'white',
-    },
-    p0: {
-      padding: 0,
-    },
-    SubBar: {
-      MuiIcon: {
-        margin: '-6px 6px',
-      },
-    },
-  }),
-);
+  },
+})) as () => any;
 
 function App() {
   const [count, setCount] = useState(0);
@@ -86,7 +78,7 @@ function App() {
           <Container maxWidth="lg" className={classes.p0}>
             <Tabs
               value={1}
-              // onChange={handleChange}
+              onChange={console.log}
               // indicatorColor="secondary"
               // textColor="secondary"
               variant="scrollable"
