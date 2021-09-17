@@ -31,7 +31,7 @@
     "@web/test-runner": "^0.13.3",
     "chai": "^4.3.4",
     "prettier": "^2.2.1",
-    "snowpack": "^3.3.7",
+    "snowpack": "3.8.6",
     "typescript": "^4.2.4"
   }
 }
