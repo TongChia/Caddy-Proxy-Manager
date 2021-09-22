@@ -1,20 +1,18 @@
-import {
-  Avatar,
-  Chip,
-  Collapse,
-  Icon,
-  IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from '@material-ui/core';
-import { h, Fragment, createElement } from 'preact';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { green } from '@material-ui/core/colors';
+import { h, Fragment } from 'preact';
 import { useState } from 'preact/hooks';
+import { createStyles, makeStyles } from '@mui/styles';
+import { green } from '@mui/material/colors';
+import Avatar from '@mui/material/Avatar';
+import Chip from '@mui/material/Chip';
+import Collapse from '@mui/material/Collapse';
+import Icon from '@mui/material/Icon';
+import IconButton from '@mui/material/IconButton';
+import Table from '@mui/material/Table';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import TableBody from '@mui/material/TableBody';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles((theme) =>
   createStyles({
     chip: {
       margin: 2,
@@ -146,46 +144,52 @@ function SourceChipMapper(sources: string[]) {
   ));
 }
 
-export function HostTableRow(row: Row) {
+export function HostTableRow({
+  source,
+  destination,
+  ssl,
+  access,
+  status,
+}: Row) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <TableRow key={row.source.join('-')}>
+      <TableRow key={source.join('-')}>
         <TableCell width="64px">
           <IconButton
             size="small"
             onClick={() => setOpen(!open)}
-            disabled={row.destination.length < 2}
+            disabled={destination.length < 2}
           >
             <Icon>{open ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}</Icon>
           </IconButton>
         </TableCell>
-        <TableCell>{SourceChipMapper(row.source)}</TableCell>
-        <TableCell>{Destination(row.destination[0])}</TableCell>
-        <TableCell>{row.ssl}</TableCell>
-        <TableCell>{row.access}</TableCell>
-        <TableCell>{row.status}</TableCell>
+        <TableCell>{SourceChipMapper(source)}</TableCell>
+        <TableCell>{Destination(destination[0])}</TableCell>
+        <TableCell>{ssl}</TableCell>
+        <TableCell>{access}</TableCell>
+        <TableCell>{status || 'Unknown' /* TODO: check health */}</TableCell>
         <TableCell padding="none">
           <IconButton>
             <Icon>more_vert</Icon>
           </IconButton>
         </TableCell>
       </TableRow>
-      {row.destination.length >= 2 ? (
-        <TableRow key={row.source.join('-') + 'collapse'}>
+      {destination.length >= 2 ? (
+        <TableRow key={source.join('-') + 'collapse'}>
           <TableCell style={{ padding: 0, border: 'none' }} colSpan={7}>
             <Collapse in={open}>
               <Table size="small">
                 <TableBody>
-                  {row.destination.slice(1).map((d) => (
+                  {destination.slice(1).map((d) => (
                     <TableRow>
                       <TableCell width="64px">&nbsp;</TableCell>
                       <TableCell width="30%">&nbsp;</TableCell>
                       <TableCell width="25%">{Destination(d)}</TableCell>
                       <TableCell width="15%">&nbsp;</TableCell>
-                      <TableCell width="100px">{row.access}</TableCell>
-                      <TableCell width="100px">{row.status}</TableCell>
+                      <TableCell width="100px">{access}</TableCell>
+                      <TableCell width="100px">{status}</TableCell>
                       <TableCell width="64px">&nbsp;</TableCell>
                     </TableRow>
                   ))}

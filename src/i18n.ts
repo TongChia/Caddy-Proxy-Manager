@@ -14,7 +14,15 @@ export const i18nInit = i18next
         translation: {},
       },
       'zh-CN': {
-        translation: {},
+        translation: {
+          Dashboard: '仪表盘',
+          Hosts: '主机',
+          Users: '用户',
+          Settings: '设置',
+          'Access Lists': '授权',
+          'Audit Log': '访问日志',
+          'SSL Certificates': 'SSL 证书',
+        },
       },
     },
     interpolation: {

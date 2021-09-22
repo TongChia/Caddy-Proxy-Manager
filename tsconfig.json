@@ -6,6 +6,7 @@
     "moduleResolution": "node",
     "jsx": "preserve",
     "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
     "baseUrl": "./",
     /* paths - import rewriting/resolving */
     "paths": {
@@ -25,7 +26,7 @@
     "allowSyntheticDefaultImports": true,
     "importsNotUsedAsValues": "error",
     /* MUI */
-    "lib": ["es6", "dom"],
+    "lib": ["es2020", "dom"],
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true

@@ -1,9 +1,7 @@
 import { h } from 'preact';
-// import { Router } from 'preact-router';
-import { useState, useEffect } from 'preact/hooks';
+import Router, { route } from 'preact-router';
+import Match from 'preact-router/match';
 import logo from './logo.svg';
-import './App.css';
-import { makeStyles } from '@mui/styles';
 import { ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
@@ -12,62 +10,69 @@ import Icon from '@mui/material/Icon';
 import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import CssBaseline from '@mui/material/CssBaseline';
+import Tabs from '@mui/material/Tabs';
 import { useTranslation } from 'react-i18next';
-import { light, dark } from './themes';
-import { useToggle } from './utils';
-
-const useStyles = makeStyles((theme) => ({
-  title: {
-    flexGrow: 1,
-    color: 'white',
-  },
-  iconButton: {
-    color: 'white',
-  },
-  p0: {
-    padding: 0,
-  },
-  SubBar: {
-    MuiIcon: {
-      margin: '-6px 6px',
-    },
-  },
-})) as () => any;
+import { useTheme } from './themes';
+import { IconTab } from './components/IconTab';
+import { routes } from './routes';
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [darkTheme, toggleTheme] = useToggle();
+  const [theme, toggleTheme] = useTheme();
   const { t, i18n } = useTranslation();
-  const classes = useStyles();
-
-  useEffect(() => {
-    const timer = setTimeout(() => setCount(count + 1), 1000);
-    return () => clearTimeout(timer);
-  }, [count, setCount]);
-
-  function a11yProps(index: any) {
-    return {
-      id: `scrollable-auto-tab-${index}`,
-      'aria-controls': `scrollable-auto-tabpanel-${index}`,
-    };
-  }
 
   return (
-    <ThemeProvider theme={darkTheme ? dark : light}>
-      <Box className="App" pt={8}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box pt={8}>
         <AppBar>
-          <Container maxWidth="lg" className={classes.p0}>
+          <Container maxWidth="lg" disableGutters>
             <Toolbar>
-              <img src={logo} alt="logo" width="34" />
-              <Typography className={classes.title} variant="h6">
+              <img
+                src={logo}
+                alt="logo"
+                style={{
+                  border: '2px solid white',
+                  width: 36,
+                  borderRadius: 36,
+                }}
+              />
+              <Typography sx={{ flexGrow: 1, color: 'white' }} variant="h6">
                 &nbsp; Caddy Proxy Manager
               </Typography>
-              <IconButton className={classes.iconButton} onClick={toggleTheme}>
-                <Icon>{darkTheme ? 'brightness_4' : 'brightness_5'}</Icon>
+              <IconButton onClick={toggleTheme} sx={{ color: 'white' }}>
+                <Icon>
+                  {theme.palette.mode == 'dark'
+                    ? 'brightness_4'
+                    : 'brightness_5'}
+                </Icon>
               </IconButton>
             </Toolbar>
           </Container>
         </AppBar>
+        <AppBar position="static" color="default">
+          <Container maxWidth="lg" disableGutters>
+            <Match>
+              {(match: { path: string }) => (
+                <Tabs
+                  value={match.path}
+                  onChange={(e, v) => route(v)}
+                  variant="scrollable"
+                  scrollButtons="auto"
+                >
+                  {Object.values(routes).map(({ icon, label, path }) => (
+                    <IconTab icon={icon} label={t(label)} value={path} />
+                  ))}
+                </Tabs>
+              )}
+            </Match>
+          </Container>
+        </AppBar>
+        <Container maxWidth="lg">
+          <Router>
+            {Object.values(routes).map(({ page, path }) => h(page, { path }))}
+          </Router>
+        </Container>
       </Box>
     </ThemeProvider>
   );

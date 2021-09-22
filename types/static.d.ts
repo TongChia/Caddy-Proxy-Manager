@@ -57,6 +57,7 @@ declare module '*.png' {
 }
 
 /* CUSTOM: ADD YOUR OWN HERE */
+type Domain = string;
 type SubRouteHandler = {
   handler: 'subroute';
   routes: Route[];
@@ -93,18 +94,41 @@ type Handler =
   | ReverseProxyHandler
   | FileServerHandler;
 
-type Match = { host: string[]; path: string[] };
+type HostMatch = { host: Domain[]; path?: string[] };
+type Match = HostMatch | { path: string[] };
 
 type Route = {
   handle: Handler[];
   match?: Match[];
-  terminal: boolean;
+  terminal?: boolean;
 };
 
-type Service = {
+type Server = {
   listen: string[];
   routes: Route[];
   errors?: { routes: {}[] };
+};
+
+type InternalIssuer = {
+  module: 'internal';
+};
+
+type Issuer = InternalIssuer;
+
+type Policy = {
+  issuers: Issuer[];
+  subjects: Domain[];
+};
+
+type Servers = {
+  [key: string]: Server;
+};
+
+type TlsMap = { [key: Domain]: Issuer };
+
+type Apps = {
+  http: { servers: Servers };
+  tls: { automation: { policies: Policy[] } };
 };
 
 type Row = {
@@ -112,13 +136,22 @@ type Row = {
   // listen: string[];
   source: string[];
   destination: FlatRoute[];
-  _handle?: SubRouteHandler;
+  _handle?: Handler;
   ssl: string;
   access: string;
-  status: string;
+  status?: string;
 };
 
 type FlatRoute = {
   path: string;
   handle?: Handler;
 };
+
+type WebRoute = {
+  icon: string;
+  label: string;
+  path: string;
+  page: (props: { path: string; default?: boolean }) => JSX.Element;
+};
+
+type WebRoutes = { [key: string]: WebRoute };

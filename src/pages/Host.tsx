@@ -1,147 +1,25 @@
 import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-  Box,
-  Paper,
-  Typography,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Button,
-} from '@material-ui/core';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import Table from '@mui/material/Table';
+import TableContainer from '@mui/material/TableContainer';
+import TableBody from '@mui/material/TableBody';
+import TableRow from '@mui/material/TableRow';
+import TableHead from '@mui/material/TableHead';
+import TableCell from '@mui/material/TableCell';
+import Button from '@mui/material/Button';
 import { HostTableRow } from '../components/HostTable';
-import isEqual from 'lodash/isEqual';
-import { HostDialog } from '../components/HostDialog';
-
-const useStyles = makeStyles({
-  table: {
-    minWidth: 640,
-  },
-});
-
-const routeReducer = (
-  results: FlatRoute[] & { parent?: string },
-  { match, handle }: Route,
-): FlatRoute[] => {
-  const { parent } = results;
-  const route: FlatRoute = { path: parent || '' };
-
-  if (match) {
-    match.forEach(({ path }) => {
-      if (path?.length) {
-        route.path += path[0];
-      }
-    });
-  }
-  if (handle) {
-    handle.forEach((r) => {
-      if (r.handler == 'subroute') {
-        r.routes.reduce(
-          routeReducer,
-          Object.assign(results, { parent: route.path }),
-        );
-        results.parent = parent;
-      } else if (
-        ['reverse_proxy', 'static_response', 'redir'].includes(r.handler)
-      ) {
-        route.handle = r;
-        results.push(route);
-      }
-    });
-  }
-
-  return results;
-};
-
-function serveReducer(results: Row[], [name, srv]: [string, Service]): Row[] {
-  const { routes, listen } = srv;
-
-  if (routes.some(({ match }) => match?.some((m) => m.host?.length))) {
-    routes.forEach(({ match, handle }) => {
-      if (match?.some((m) => m.host)) {
-        match.forEach(({ host }) => {
-          if (host) {
-            const sources = results.reduce<string[]>(
-              (ss, row) => ss.concat(row.source),
-              [],
-            );
-            const subRouteHandle = handle.find(
-              ({ handler }) => handler == 'subroute',
-            ) as SubRouteHandler | undefined;
-
-            if (subRouteHandle) {
-              const sameRow = results.find((_r) =>
-                isEqual(_r._handle, subRouteHandle),
-              );
-              if (sameRow) {
-                host.forEach((s) => sameRow.source.push(s + listen));
-              } else {
-                results.push({
-                  name,
-                  source: host.map((s) => s + listen),
-                  _handle: subRouteHandle,
-                  destination: subRouteHandle.routes
-                    .reduce(routeReducer, Object.assign([], { parent: '' }))
-                    .sort((a, b) => a.path.length - b.path.length),
-                  ssl: "Let's Encrypt",
-                  access: 'Public',
-                  status: 'Online',
-                });
-              }
-            } else {
-              console.log('no sub router srv: ', name);
-              results.push({
-                name,
-                source: host.map((s) => s + listen),
-                destination: [{ path: '', handle: handle[0] }], // TODO: foreach handle
-                ssl: "Let's Encrypt",
-                access: 'Public',
-                status: 'Online',
-              });
-            }
-          }
-        });
-      }
-    });
-  } else {
-    results.push({
-      name,
-      source: listen,
-      destination: routes
-        .reduce(routeReducer, Object.assign([], { parent: '' }))
-        .sort((a, b) => a.path.length - b.path.length),
-      ssl: 'None',
-      access: 'Public',
-      status: 'Online',
-    });
-  }
-
-  return results;
-}
+import { getHosts } from '../api';
 
 export function Hosts() {
-  const classes = useStyles();
+  // const classes = useStyles();
   const [rows, setRows] = useState<Row[]>([]);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    fetch('/api/config/apps')
-      .then((response) => response.json())
-      .then((apps) => {
-        console.log(apps.http.servers);
-        console.log(apps.tls);
-        setRows(
-          // Object.entries<Service>(apps.http.servers).map<Row>(createData),
-          Object.entries<Service>(apps.http.servers).reduce<Row[]>(
-            serveReducer,
-            [],
-          ),
-        );
-      });
+    getHosts().then(setRows).catch(console.error);
   }, []);
 
   return (
@@ -150,7 +28,7 @@ export function Hosts() {
         <Button
           size="small"
           color="primary"
-          style={{ float: 'right' }}
+          sx={{ float: 'right' }}
           onClick={() => setOpen(true)}
         >
           {'Add Host'}
@@ -158,7 +36,7 @@ export function Hosts() {
         <Typography variant="h5">Hosts</Typography>
       </Box>
       <TableContainer component={Paper}>
-        <Table className={classes.table}>
+        <Table sx={{ minWidth: 640 }}>
           <TableHead>
             <TableRow>
               <TableCell width="64px">&nbsp;</TableCell>
@@ -173,7 +51,6 @@ export function Hosts() {
           <TableBody>{rows.map(HostTableRow)}</TableBody>
         </Table>
       </TableContainer>
-      <HostDialog open={open} data={{}} onClose={() => setOpen(false)} />
     </Box>
   );
 }
