@@ -156,7 +156,7 @@ export function HostTableRow({
   return (
     <>
       <TableRow key={source.join('-')}>
-        <TableCell width="64px">
+        <TableCell sx={{ padding: 1, width: 32 }}>
           <IconButton
             size="small"
             onClick={() => setOpen(!open)}
@@ -184,7 +184,9 @@ export function HostTableRow({
                 <TableBody>
                   {destination.slice(1).map((d) => (
                     <TableRow>
-                      <TableCell width="64px">&nbsp;</TableCell>
+                      <TableCell sx={{ padding: 1, width: 32 }}>
+                        &nbsp;
+                      </TableCell>
                       <TableCell width="30%">&nbsp;</TableCell>
                       <TableCell width="25%">{Destination(d)}</TableCell>
                       <TableCell width="15%">&nbsp;</TableCell>

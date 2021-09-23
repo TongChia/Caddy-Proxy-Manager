@@ -1,39 +1,56 @@
 import { h, Fragment } from 'preact';
-// import { useState } from 'preact/hooks';
-// import Box from '@mui/material/Box';
-import Dialog from '@mui/material/Dialog';
-// import DialogActions from '@mui/material/DialogActions';
-// import DialogContent from '@mui/material/DialogContent';
-// import DialogTitle from '@mui/material/DialogTitle';
-// import Tabs from '@mui/material/Tabs';
-// import Button from '@mui/material/Button';
-// import type { DialogProps } from '@mui/material/Dialog/Dialog';
-// import { IconTab } from './IconTab';
-// import { Autocomplete, createFilterOptions } from '@material-ui/lab';
+import Dialog from 'rc-dialog';
+import Tabs, { TabsProps } from '@mui/material/Tabs';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import { IconTab } from './IconTab';
+import { useState } from 'preact/hooks';
+import { DetailsTabPlan } from './DetailsTabPlan';
 
-// const filter = createFilterOptions<string>();
-
-export function HostDialog({
-  open,
-  data,
-  onClose,
-  ...props
-}: {
+type HostDialogProps = {
   open: boolean;
-  data: {};
+  data?: Row;
   onClose: () => void;
-}) {
-  // const [hosts, setHosts] = useState(['www.baidu.com']);
+};
 
+type TabIndex = 'details' | 'subroute' | 'ssl' | 'advanced';
+
+const DialogTabs = (props: TabsProps) => {
   return (
-    <Dialog {...props} open={open} onClose={onClose}>
-      {/*<DialogTitle>{'New Host'}</DialogTitle>*/}
+    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Tabs {...props}>
+        <IconTab value="details" icon={'details'} label={'Details'} />
+        <IconTab
+          value="subroute"
+          icon={'account_tree'}
+          label={'Custom locations'}
+        />
+        <IconTab value="ssl" icon={'https'} label={'SSL'} />
+        <IconTab value="advanced" icon={'settings'} label={'Advanced'} />
+      </Tabs>
+    </Box>
+  );
+};
 
-      {/*<DialogActions>*/}
-      {/*  <Button color="primary" onClick={(e) => createHost()}>*/}
-      {/*    Agree*/}
-      {/*  </Button>*/}
-      {/*</DialogActions>*/}
+export const HostDialog = ({ open, data, onClose }: HostDialogProps) => {
+  const [tabIndex, setTabIndex] = useState<TabIndex>('details');
+  return (
+    <Dialog
+      visible={open}
+      onClose={onClose}
+      title={'Hello'}
+      zIndex={1150}
+      bodyStyle={{ padding: 0 }}
+    >
+      <DialogTabs value={tabIndex} onChange={(e, n) => setTabIndex(n)} />
+      <DialogContent>
+        <DetailsTabPlan currentIndex={tabIndex} />
+      </DialogContent>
+      <DialogActions>
+        <Button>Agree</Button>
+      </DialogActions>
     </Dialog>
   );
-}
+};

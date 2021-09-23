@@ -10,13 +10,17 @@ import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import Button from '@mui/material/Button';
+import DialogTitle from '@mui/material/DialogTitle';
+import Dialog from 'rc-dialog';
 import { HostTableRow } from '../components/HostTable';
 import { getHosts } from '../api';
+import { useToggle } from '../utils';
+import { HostDialog } from '../components/HostDialog';
 
 export function Hosts() {
   // const classes = useStyles();
   const [rows, setRows] = useState<Row[]>([]);
-  const [open, setOpen] = useState(false);
+  const [open, toggleOpen] = useToggle();
 
   useEffect(() => {
     getHosts().then(setRows).catch(console.error);
@@ -29,7 +33,7 @@ export function Hosts() {
           size="small"
           color="primary"
           sx={{ float: 'right' }}
-          onClick={() => setOpen(true)}
+          onClick={toggleOpen}
         >
           {'Add Host'}
         </Button>
@@ -39,7 +43,7 @@ export function Hosts() {
         <Table sx={{ minWidth: 640 }}>
           <TableHead>
             <TableRow>
-              <TableCell width="64px">&nbsp;</TableCell>
+              <TableCell sx={{ padding: 1, width: 32 }}>&nbsp;</TableCell>
               <TableCell width="30%">SOURCE</TableCell>
               <TableCell width="25%">DESTINATION</TableCell>
               <TableCell width="15%">SSL</TableCell>
@@ -51,6 +55,11 @@ export function Hosts() {
           <TableBody>{rows.map(HostTableRow)}</TableBody>
         </Table>
       </TableContainer>
+      <HostDialog
+        open={open}
+        onClose={toggleOpen}
+        data={undefined}
+      ></HostDialog>
     </Box>
   );
 }

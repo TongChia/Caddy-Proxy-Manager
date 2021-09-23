@@ -19,6 +19,8 @@
     "preact": "^10.5.14",
     "preact-compat": "^3.19.0",
     "preact-router": "^3.2.1",
+    "rc-dialog": "^8.6.0",
+    "react-hook-form": "^7.15.4",
     "react-i18next": "^11.12.0"
   },
   "devDependencies": {

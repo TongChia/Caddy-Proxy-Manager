@@ -1,6 +1,6 @@
 import { useMemo } from 'preact/hooks';
 import { createTheme, Theme } from '@mui/material/styles';
-import { blue } from '@mui/material/colors';
+// import { blue } from '@mui/material/colors';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useToggle } from './utils';
 
@@ -21,6 +21,7 @@ export function useTheme(): [Theme, () => void] {
         // },
       },
       components: {
+        // MuiCssBaseline: {},
         MuiAppBar: {
           styleOverrides: {
             colorPrimary: {

@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from './themes';
 import { IconTab } from './components/IconTab';
 import { routes } from './routes';
+import 'rc-dialog/assets/index.css';
 
 function App() {
   const [theme, toggleTheme] = useTheme();
