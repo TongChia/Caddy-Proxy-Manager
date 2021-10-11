@@ -1,19 +1,21 @@
 import { h } from 'preact';
 import { Dashboard } from './pages/Dashboard';
-import { Hosts } from './pages/Host';
+import { Hosts } from './pages/Hosts';
+import { Certificates } from './pages/Certificates';
+import { Users } from './pages/Users';
 
 export const routes: WebRoutes = {
   dashboard: {
     icon: 'home',
     label: 'Dashboard',
     path: '/',
-    page: () => <Dashboard />,
+    page: Dashboard,
   },
   hosts: {
-    icon: 'list',
+    icon: 'dns',
     label: 'Hosts',
     path: '/hosts',
-    page: () => <Hosts />,
+    page: Hosts,
   },
   access: {
     icon: 'lock_open',
@@ -21,11 +23,17 @@ export const routes: WebRoutes = {
     path: '/access',
     page: () => <h1>Users page !</h1>,
   },
+  certs: {
+    icon: 'shield',
+    label: 'SSL Certificates',
+    path: '/certificates',
+    page: Certificates,
+  },
   users: {
     icon: 'manage_accounts',
     label: 'Users',
     path: '/users',
-    page: () => <h1>Users page !</h1>,
+    page: Users,
   },
   logs: {
     icon: 'description',

@@ -10,21 +10,27 @@ import TableRow from '@mui/material/TableRow';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import Button from '@mui/material/Button';
-import DialogTitle from '@mui/material/DialogTitle';
-import Dialog from 'rc-dialog';
 import { HostTableRow } from '../components/HostTable';
 import { getHosts } from '../api';
 import { useToggle } from '../utils';
 import { HostDialog } from '../components/HostDialog';
+import { blue, blueGrey, cyan, green } from '@mui/material/colors';
+import { useTranslation } from 'react-i18next';
+import { route } from 'preact-router';
 
 export function Hosts() {
-  // const classes = useStyles();
-  const [rows, setRows] = useState<Row[]>([]);
+  const [rows, setRows] = useState<HostRow[]>([]);
   const [open, toggleOpen] = useToggle();
+  const { t, i18n } = useTranslation();
+  const refresh = () => {
+    getHosts()
+      .then(setRows)
+      .catch((e) => {
+        if (e.response?.status == 401) route('/login', true);
+      });
+  };
 
-  useEffect(() => {
-    getHosts().then(setRows).catch(console.error);
-  }, []);
+  useEffect(refresh, []);
 
   return (
     <Box pt={2}>
@@ -32,23 +38,26 @@ export function Hosts() {
         <Button
           size="small"
           color="primary"
+          variant="outlined"
           sx={{ float: 'right' }}
           onClick={toggleOpen}
         >
-          {'Add Host'}
+          {t('Add Host')}
         </Button>
-        <Typography variant="h5">Hosts</Typography>
+        <Typography variant="h5" color={blueGrey['A700']}>
+          Hosts
+        </Typography>
       </Box>
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 640 }}>
+        <Table sx={{ minWidth: 840 }}>
           <TableHead>
-            <TableRow>
-              <TableCell sx={{ padding: 1, width: 32 }}>&nbsp;</TableCell>
-              <TableCell width="30%">SOURCE</TableCell>
-              <TableCell width="25%">DESTINATION</TableCell>
-              <TableCell width="15%">SSL</TableCell>
-              <TableCell width="100px">ACCESS</TableCell>
-              <TableCell width="100px">STATUS</TableCell>
+            <TableRow sx={{ textTransform: 'uppercase' }}>
+              <TableCell width="64px">&nbsp;</TableCell>
+              <TableCell>{t('Source')}</TableCell>
+              <TableCell width="25%">{t('Destination')}</TableCell>
+              <TableCell width="15%">{t('SSL')}</TableCell>
+              <TableCell width="100px">{t('Access')}</TableCell>
+              <TableCell width="100px">{t('Status')}</TableCell>
               <TableCell width="64px">&nbsp;</TableCell>
             </TableRow>
           </TableHead>
@@ -58,6 +67,7 @@ export function Hosts() {
       <HostDialog
         open={open}
         onClose={toggleOpen}
+        refresh={refresh}
         data={undefined}
       ></HostDialog>
     </Box>

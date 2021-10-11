@@ -1,8 +1,5 @@
 import { h, Fragment } from 'preact';
 import { useState } from 'preact/hooks';
-import { createStyles, makeStyles } from '@mui/styles';
-import { green } from '@mui/material/colors';
-import Avatar from '@mui/material/Avatar';
 import Chip from '@mui/material/Chip';
 import Collapse from '@mui/material/Collapse';
 import Icon from '@mui/material/Icon';
@@ -11,104 +8,9 @@ import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
-
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    chip: {
-      margin: 2,
-      borderRadius: 3,
-      '&.with-ssl:hover': {
-        color: 'white',
-        background: green[400],
-        '&>.MuiChip-icon': {
-          color: 'white',
-        },
-      },
-    },
-    icon: {
-      fontSize: '14px',
-      background: green[400],
-      color: 'white',
-    },
-  }),
-);
-
-export function Destination({ path, handle }: FlatRoute) {
-  const classes = useStyles();
-
-  if (!handle) return '';
-  if (handle.handler == 'reverse_proxy')
-    return (
-      <span>
-        {handle.upstreams.map((up) => (
-          <Chip
-            size="small"
-            avatar={
-              (
-                <Avatar>
-                  <Icon className={classes.icon}>sync_alt</Icon>
-                </Avatar>
-              ) as JSX.Element
-            }
-            label={up.dial}
-            variant="outlined"
-          />
-        ))}
-      </span>
-    );
-  if (handle.handler == 'static_response')
-    return (
-      <Chip
-        avatar={
-          (
-            <Avatar>
-              <Icon className={classes.icon}>keyboard_backspace</Icon>
-            </Avatar>
-          ) as JSX.Element
-        }
-        size="small"
-        label={'"' + handle.body + '"'}
-        variant="outlined"
-      />
-    );
-  if (handle.handler == 'file_server')
-    return (
-      <Chip
-        avatar={
-          (
-            <Avatar>
-              <Icon className={classes.icon}>code</Icon>
-            </Avatar>
-          ) as JSX.Element
-        }
-        size="small"
-        label={handle.root || '/'}
-        variant="outlined"
-      />
-    );
-
-  return 'nothing!';
-}
-
-export function SourceChip(s: string) {
-  const classes = useStyles();
-  const label = s.startsWith(':') ? `*${s}` : s;
-  const url = s.startsWith(':')
-    ? `http://${document.domain + s}`
-    : `http://${s}`;
-  return (
-    <Chip
-      size="small"
-      label={label}
-      onClick={() => window.open(url, '_blank')}
-      className={classes.chip}
-    />
-  );
-}
+import { DomainChip, DestChip, StatusChip } from './Chips';
 
 function SourceChipMapper(sources: string[]) {
-  const classes = useStyles();
-
   const ss = sources.reduce<{
     [key: string]: { label: string; url: string; ssl: boolean };
   }>((r, src) => {
@@ -129,34 +31,34 @@ function SourceChipMapper(sources: string[]) {
     return r;
   }, {});
 
-  return Object.entries(ss).map(([s, { label, url, ssl }]) => (
-    <Chip
-      size="small"
-      icon={
-        ssl
-          ? ((<Icon style={{ fontSize: '1rem' }}>https</Icon>) as JSX.Element)
-          : undefined
-      }
-      label={label}
-      onClick={() => window.open(url, '_blank')}
-      className={(ssl ? 'with-ssl ' : '') + classes.chip}
-    />
-  ));
+  return Object.entries(ss).map(([s, props]) => h(DomainChip, props));
 }
+
+const SSLChip = (policies: Policy[]) => {
+  return policies.length
+    ? policies.map(({ issuers }) => (
+        <Chip
+          size="small"
+          variant="outlined"
+          label={issuers?.map(({ module }) => module).join(' ') || 'Unkonw'}
+        />
+      ))
+    : 'HTTP only';
+};
 
 export function HostTableRow({
   source,
   destination,
   ssl,
   access,
-  status,
-}: Row) {
+}: // status,
+HostRow) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
       <TableRow key={source.join('-')}>
-        <TableCell sx={{ padding: 1, width: 32 }}>
+        <TableCell padding="checkbox" sx={{ pl: 2 }}>
           <IconButton
             size="small"
             onClick={() => setOpen(!open)}
@@ -166,10 +68,13 @@ export function HostTableRow({
           </IconButton>
         </TableCell>
         <TableCell>{SourceChipMapper(source)}</TableCell>
-        <TableCell>{Destination(destination[0])}</TableCell>
-        <TableCell>{ssl}</TableCell>
+        <TableCell>{DestChip(destination[0])}</TableCell>
+        <TableCell>{SSLChip(ssl)}</TableCell>
         <TableCell>{access}</TableCell>
-        <TableCell>{status || 'Unknown' /* TODO: check health */}</TableCell>
+        <TableCell>
+          {/* TODO: check health */}
+          <StatusChip label={'Online'} />
+        </TableCell>
         <TableCell padding="none">
           <IconButton>
             <Icon>more_vert</Icon>
@@ -184,14 +89,12 @@ export function HostTableRow({
                 <TableBody>
                   {destination.slice(1).map((d) => (
                     <TableRow>
-                      <TableCell sx={{ padding: 1, width: 32 }}>
-                        &nbsp;
-                      </TableCell>
-                      <TableCell width="30%">&nbsp;</TableCell>
-                      <TableCell width="25%">{Destination(d)}</TableCell>
+                      <TableCell width="64px">&nbsp;</TableCell>
+                      <TableCell>&nbsp; {d.path}</TableCell>
+                      <TableCell width="25%">{DestChip(d)}</TableCell>
                       <TableCell width="15%">&nbsp;</TableCell>
                       <TableCell width="100px">{access}</TableCell>
-                      <TableCell width="100px">{status}</TableCell>
+                      <TableCell width="100px">&nbsp;</TableCell>
                       <TableCell width="64px">&nbsp;</TableCell>
                     </TableRow>
                   ))}

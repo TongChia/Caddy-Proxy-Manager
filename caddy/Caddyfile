@@ -1,23 +1,89 @@
+{
+	admin :2019 {
+		# TODO: CORS not working
+		enforce_origin
+		origins localhost
+	}
+	http_port 80
+	https_port 443
+	auto_https off
+	local_certs
+
+	order webdav before file_server
+	order cgi last
+
+	#exec ping 192.168.123.1 {
+	#	timeout 0
+	#	startup
+	#}
+}
+
 :81 {
-    log
 
-    reverse_proxy 192.168.123.110:8080
+	route /auth* {
+		authp {
+			cookie insecure on
+			crypto default token lifetime 3600
+			crypto key sign-verify 0e2fdcf8-6868-41a7-884b-7308795fc286
+			backends {
+				local_backend {
+					method local
+					path /data/local_backend/users.json
+					realm local
+				}
+			}
+			ui {
+				links {
+					"Caddy Proxy Manager" /
+				}
+			}
+		}
+	}
 
-    handle_path /api/* {
-        rewrite /api/* {path}
-        reverse_proxy localhost:2019 {
-        	header_up Host {upstream_hostport}
-        	header_up X-Forwarded-Host {host}
-        }
-    }
+	route /api* {
+		jwt {
+			primary yes
+			crypto key verify 0e2fdcf8-6868-41a7-884b-7308795fc286
+			set auth url /login
+			disable auth redirect
+			allow roles authp/admin authp/user authp/guest
+			allow roles superadmin
+		}
+		uri strip_prefix /api
+		reverse_proxy localhost:2019 {
+			header_up Host {upstream_hostport}
+			header_up X-Forwarded-Host {host}
+		}
+	}
+
+	route /cgi* {
+		jwt
+		cgi /cgi/list_modules /data/cgi-bin/caddy_cmd.cgi list-modules {
+			script_name /list_modules
+			pass_env HOME LANG
+			dir /data/cgi-bin
+		}
+		cgi /cgi/list_apks /data/cgi-bin/list_apk.cgi
+	}
+
+	route /local_backend* {
+		jwt {
+			set auth url /login
+			disable auth redirect
+			allow roles authp/admin
+		}
+		webdav /local_backend/* {
+			root /data/local_backend
+			prefix /local_backend
+		}
+	}
+
+	route {
+		reverse_proxy 192.168.123.110:8080
+	}
 }
 
-http://test.localhost, https://test.localhost, http://test2.localhost  {
-    tls internal
-    respond / "Hello, world!"
-}
-
-http://dev.localhost, https://dev.localhost {
-    tls internal
-    reverse_proxy localhost:81
+dev.localhost {
+	tls internal
+	reverse_proxy localhost:81
 }

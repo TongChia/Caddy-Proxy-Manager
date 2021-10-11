@@ -7,12 +7,16 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { IconTab } from './IconTab';
 import { useState } from 'preact/hooks';
-import { DetailsTabPlan } from './DetailsTabPlan';
+import { useForm } from 'react-hook-form';
+import { DetailsTabPlan, DetailsInputs } from './DetailsTabPlan';
+import { SSLTabPlan, SSLInputs } from './SSLTabPlan';
+import { createHost } from '../api';
 
 type HostDialogProps = {
   open: boolean;
-  data?: Row;
-  onClose: () => void;
+  data?: HostRow;
+  onClose: (x: any) => void;
+  refresh: () => void;
 };
 
 type TabIndex = 'details' | 'subroute' | 'ssl' | 'advanced';
@@ -34,22 +38,73 @@ const DialogTabs = (props: TabsProps) => {
   );
 };
 
-export const HostDialog = ({ open, data, onClose }: HostDialogProps) => {
+type Inputs = SSLInputs & DetailsInputs;
+
+export const HostDialog = ({
+  open,
+  data,
+  onClose,
+  refresh,
+}: HostDialogProps) => {
   const [tabIndex, setTabIndex] = useState<TabIndex>('details');
+  const [disabled, setDisabled] = useState(false);
+  const form = useForm<Inputs>();
+  const onSubmit = ({ domains, proxy, ssl }: Inputs) => {
+    if (domains && proxy) {
+      setDisabled(true);
+      createHost({
+        host: domains,
+        port: [':80'],
+        handle: {
+          handler: 'reverse_proxy',
+          upstreams: [{ dial: `${proxy.host}:${proxy.port}` }],
+        },
+      })
+        .then(console.log)
+        .catch(console.error)
+        .finally(() => {
+          onClose(false);
+          refresh();
+          setDisabled(false);
+        });
+    }
+  };
+
   return (
     <Dialog
       visible={open}
       onClose={onClose}
       title={'Hello'}
       zIndex={1150}
+      animation={'custom'}
       bodyStyle={{ padding: 0 }}
+      wrapStyle={{ disable: 'block', visibility: open ? 'visible' : 'hidden' }}
     >
       <DialogTabs value={tabIndex} onChange={(e, n) => setTabIndex(n)} />
       <DialogContent>
-        <DetailsTabPlan currentIndex={tabIndex} />
+        <Box
+          id="my-form"
+          component="form"
+          noValidate
+          autoComplete="off"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <DetailsTabPlan currentIndex={tabIndex} form={form} />
+          <SSLTabPlan currentIndex={tabIndex} form={form} />
+        </Box>
       </DialogContent>
       <DialogActions>
-        <Button>Agree</Button>
+        <Button onClick={onClose} disabled={disabled}>
+          Cancel
+        </Button>
+        <Button
+          form="my-form"
+          type="submit"
+          disabled={disabled}
+          variant="contained"
+        >
+          Agree
+        </Button>
       </DialogActions>
     </Dialog>
   );

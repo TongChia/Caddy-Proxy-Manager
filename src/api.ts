@@ -1,5 +1,6 @@
-import { curl } from './utils';
 import isEqual from 'lodash/isEqual';
+import assign from 'lodash/assign';
+import axios from 'axios';
 
 type NewHost = {
   host: Domain[];
@@ -9,7 +10,7 @@ type NewHost = {
   tls?: any[];
 };
 
-const createHost = ({ host, port, handle, subRoutes }: NewHost) => {
+export const createHost = ({ host, port, handle, subRoutes }: NewHost) => {
   const route: Route = {
     match: [{ host }],
     handle: !subRoutes?.length
@@ -26,23 +27,25 @@ const createHost = ({ host, port, handle, subRoutes }: NewHost) => {
           },
         ],
   };
+  return axios
+    .get<Servers>('/api/config/apps/http/servers')
+    .then(({ data: conf }) => {
+      const rest = Object.entries(conf)
+        .filter(([, { listen }]) => port.includes(listen[0]))
+        .reduce((ports, [, { listen, routes }]) => {
+          routes.push(route);
+          return ports.filter((p) => listen[0] != p);
+        }, port);
+      if (rest.length) {
+        rest.forEach((p) => {
+          conf['listen' + p] = { listen: [p], routes: [route] };
+        });
+      }
 
-  return curl<Servers>('/api/config/apps/http/servers').then((conf) => {
-    console.debug('before: ', conf);
-    const rest = Object.entries(conf)
-      .filter(([, { listen }]) => port.includes(listen[0]))
-      .reduce((ports, [, { listen, routes }]) => {
-        routes.push(route);
-        return ports.filter((p) => listen[0] == p);
-      }, port);
-    if (rest.length) {
-      rest.forEach((p) => {
-        conf['listen' + p] = { listen: [p], routes: [route] };
+      return axios.post<Server>('/api/config/apps/http/servers', conf, {
+        timeout: 2000,
       });
-    }
-    console.debug('after: ', conf);
-    return curl('api/load', 'POST', conf);
-  });
+    });
 };
 
 const routeReducer = (
@@ -62,10 +65,7 @@ const routeReducer = (
   if (handle) {
     handle.forEach((r) => {
       if (r.handler == 'subroute') {
-        r.routes.reduce(
-          routeReducer,
-          Object.assign(results, { parent: route.path }),
-        );
+        r.routes.reduce(routeReducer, assign(results, { parent: route.path }));
         results.parent = parent;
       } else if (
         ['reverse_proxy', 'static_response', 'redir'].includes(r.handler)
@@ -86,67 +86,129 @@ const isHostMatch = (match?: Match): match is HostMatch =>
 const isSubRouteHandler = (handle?: Handler): handle is SubRouteHandler =>
   handle?.handler == 'subroute';
 
-const serveReducer = (
-  results: Row[],
-  [name, { routes, listen }]: [string, Server],
-): Row[] => {
-  routes.forEach(({ match, handle }) => {
-    if (match?.some(isHostMatch)) {
-      match?.forEach((m) => {
-        if (isHostMatch(m)) {
-          const { host } = m;
-          const subRouteHandle = handle.find(isSubRouteHandler);
-          const main = subRouteHandle || handle[0];
-          const same = results.find(({ _handle }) => isEqual(_handle, main));
+const isStaticHandler = (handle?: Handler): handle is StaticResponseHandler =>
+  handle?.handler == 'static_response';
 
-          if (same) {
-            host.forEach((s) => same.source.push(s + listen));
-          } else {
-            results.push({
-              name,
-              source: host.map((s) => s + listen),
-              _handle: main,
-              destination: subRouteHandle
-                ? subRouteHandle.routes.reduce(routeReducer, []) // .sort((a, b) => a.path.length - b.path.length)
-                : [{ path: '', handle: main }],
-              ssl: 'Zero SSL',
-              access: 'Public', // TODO: basic auth | jwt
-            });
-          }
-        }
-      });
+const isAbortHandler = (handle?: Handler) =>
+  isStaticHandler(handle) && handle.abort == true;
+
+const hostReducer = (
+  results: HostRows & {
+    listen?: string[];
+    parent?: string;
+  },
+  { match, handle, '@id': id }: Route,
+  i: number,
+) => {
+  const { listen = [':80'], parent = '' } = results;
+  const isCPMid = id && id.startsWith('CPM:');
+  const hostMatch = match?.find(isHostMatch);
+
+  if (isCPMid) {
+    // TODO:
+  } else if (hostMatch) {
+    const { host } = hostMatch;
+    const subHandler = handle.find(isSubRouteHandler);
+    const main = subHandler || handle[0];
+    const index = handle.indexOf(main);
+    // const same = results.find(({ _handle }) => isEqual(_handle, main));
+
+    // if (same) {
+    //   host.forEach((s) => same.source.push(s + listen));
+    //   same._paths?.push([parent, i, 'handle', index].join('/'));
+    // } else
+    if (host[0].includes('*')) {
+      subHandler?.routes.reduce(
+        hostReducer,
+        assign(results, {
+          parent: [parent, i, 'handle', index, 'routes'].join('/'),
+        }),
+      );
+      results.parent = parent;
     } else {
-      const same = results.find(({ source }) => isEqual(source, listen));
-      if (same) {
-        same.destination = routeReducer(same.destination, {
-          match,
-          handle,
-        }); //.sort((a, b) => a.path.length - b.path.length);
-      } else {
-        results.push({
-          name,
-          source: listen,
-          destination: routeReducer([], { match, handle }),
-          ssl: 'None',
-          access: 'Public',
-        });
-      }
+      results.push({
+        source: host.map((s) => s + listen),
+        _handle: main,
+        _paths: [[parent, i, 'handle', index].join('/')],
+        destination: subHandler
+          ? subHandler.routes.reduce(routeReducer, []) // .sort((a, b) => a.path.length - b.path.length)
+          : [{ path: '', handle: main }],
+        // ssl: results.policies.filter((p) =>
+        //   p.subjects?.some((s) => host.includes(s)),
+        // ),
+        ssl: [],
+        access: 'Public', // TODO: basic auth
+      });
     }
-  });
+    // } else {
+    //   const same = results.find(({ source }) => isEqual(source, listen));
+    //   if (same) {
+    //     same.destination = routeReducer(same.destination, {
+    //       match,
+    //       handle,
+    //     }); //.sort((a, b) => a.path.length - b.path.length);
+    //   } else {
+    //     results.push({
+    //       // name,
+    //       source: listen,
+    //       _handle: handle[0],
+    //       destination: routeReducer([], { match, handle }),
+    //       ssl: [],
+    //       access: 'Public',
+    //     });
+    //   }
+  }
   return results;
 };
 
-export const getHosts = (): Promise<Row[]> =>
-  curl<{ apps: Apps }>('/api/config/').then(
+export const getHosts = (): Promise<HostRows> =>
+  axios.get<{ apps: Apps }>('/api/config/').then(
     ({
-      apps: {
-        http: { servers },
-        tls,
+      data: {
+        apps: {
+          http: { http_port = 80, https_port = 443, servers },
+          tls,
+        },
       },
     }) => {
-      console.log(tls);
-      const hosts = Object.entries(servers).reduce<Row[]>(serveReducer, []);
-      console.log(hosts);
+      const policies =
+        tls?.automation?.policies?.filter(({ subjects }) => subjects?.length) ||
+        [];
+      const listens = [http_port, https_port] as [number, number];
+      const hosts = Object.entries(servers).reduce<HostRows>(
+        (results, [srv, { routes, listen }]) =>
+          routes.reduce(
+            hostReducer,
+            assign(results, { listen, parent: srv + '/routes' }),
+          ),
+        assign([], { policies, listens }),
+      );
       return hosts;
+    },
+  );
+
+export const getCerts = (): Promise<Policy[]> =>
+  axios
+    .get<{ automation?: { policies: Policy[] } }>('/api/config/apps/tls')
+    .then(
+      ({ data }) =>
+        data?.automation?.policies?.filter(({ issuers }) => issuers?.length) ||
+        [],
+    );
+
+export const getUsers = (): Promise<User[]> =>
+  axios
+    .get<{ users: User[] }>('/local_backend/users.json')
+    .then(({ data: { users } }) => users);
+
+export const loginApi = (data: { username: string; password: string }) =>
+  axios.post<{ token: string }>(
+    '/auth/login',
+    { ...data, realm: 'local' },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
     },
   );

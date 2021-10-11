@@ -2,10 +2,14 @@
 // import proxy from 'http2-proxy';
 
 export default {
+  env: {
+    APP_VERSION: "v0.0.1"
+  },
   alias: {
     'react/jsx-runtime': 'preact/jsx-runtime',
     react: 'preact/compat',
     'react-dom': 'preact/compat',
+    '@mui/material/Backdrop': './src/components/FixBackdrop',
   },
   mount: {
     public: { url: '/', static: true },

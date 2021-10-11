@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import Icon from '@mui/material/Icon';
 import Tab, { TabProps } from '@mui/material/Tab';
+import { blueGrey } from '@mui/material/colors';
 
 export function IconTab({
   icon,
@@ -14,7 +15,10 @@ export function IconTab({
     <Tab
       label={
         <span>
-          <Icon sx={{ fontSize: '1.25rem', margin: '-5px 5px -5px 0' }}>
+          <Icon
+            className="material-icons-outlined"
+            sx={{ fontSize: '1.1rem', margin: '-5px 5px -5px 0' }}
+          >
             {icon}
           </Icon>
           {label}

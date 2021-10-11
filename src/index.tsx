@@ -1,3 +1,6 @@
+// @ts-ignore
+window.process = { env: { NODE_ENV: 'development' } };
+
 import { h, render } from 'preact';
 import 'preact/devtools';
 import App from './App.js';
