@@ -86,7 +86,7 @@ export function Login({ path, version }: { path?: string; version: string }) {
             <TextField
               {...register('username', {
                 required: true,
-                pattern: /^[a-z][^\W_]{5,32}$/i,
+                pattern: /^[a-z][^\W_]{4,32}$/i,
               })}
               error={!!errors.username}
               helperText={errors.username?.message}

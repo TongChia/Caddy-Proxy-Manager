@@ -13,7 +13,7 @@ import Button from '@mui/material/Button';
 import { HostTableRow } from '../components/HostTable';
 import { getHosts } from '../api';
 import { useToggle } from '../utils';
-import { HostDialog } from '../components/HostDialog';
+import { HostDialog } from '../components/HostDialog/HostDialog';
 import { blue, blueGrey, cyan, green } from '@mui/material/colors';
 import { useTranslation } from 'react-i18next';
 import { route } from 'preact-router';
@@ -44,26 +44,38 @@ export function Hosts() {
         >
           {t('Add Host')}
         </Button>
-        <Typography variant="h5" color={blueGrey['A700']}>
-          Hosts
+        <Typography variant="h5" color={blue['700']}>
+          {t('Hosts')}
         </Typography>
       </Box>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 840 }}>
-          <TableHead>
-            <TableRow sx={{ textTransform: 'uppercase' }}>
-              <TableCell width="64px">&nbsp;</TableCell>
-              <TableCell>{t('Source')}</TableCell>
-              <TableCell width="25%">{t('Destination')}</TableCell>
-              <TableCell width="15%">{t('SSL')}</TableCell>
-              <TableCell width="100px">{t('Access')}</TableCell>
-              <TableCell width="100px">{t('Status')}</TableCell>
-              <TableCell width="64px">&nbsp;</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>{rows.map(HostTableRow)}</TableBody>
-        </Table>
-      </TableContainer>
+      {!rows.length ? (
+        <Paper sx={{ py: 8, textAlign: 'center' }}>
+          <Typography variant="h4">There are no Host Record</Typography>
+          <Typography variant={'subtitle1'}>
+            Why don't you create one?
+          </Typography>
+          <Box sx={{ pt: 3 }}>
+            <Button variant={'contained'}>{t('Add Host')}</Button>
+          </Box>
+        </Paper>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 840 }}>
+            <TableHead>
+              <TableRow sx={{ textTransform: 'uppercase' }}>
+                <TableCell width="64px">&nbsp;</TableCell>
+                <TableCell>{t('Source')}</TableCell>
+                <TableCell width="25%">{t('Destination')}</TableCell>
+                <TableCell width="15%">{t('SSL')}</TableCell>
+                <TableCell width="160px">{t('Access')}</TableCell>
+                <TableCell width="100px">{t('Status')}</TableCell>
+                <TableCell width="64px">&nbsp;</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>{rows.map(HostTableRow)}</TableBody>
+          </Table>
+        </TableContainer>
+      )}
       <HostDialog
         open={open}
         onClose={toggleOpen}

@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useForm } from 'react-hook-form';
 // import Dialog, { DialogProps } from 'rc-dialog';
+import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
 import { h } from 'preact';
 import TextField from '@mui/material/TextField';
 import { useTranslation } from 'react-i18next';
@@ -60,6 +63,7 @@ export const ChangePasswdDialog = ({
       open={open}
       onClose={onClose}
       title={t('Change') + ' ' + t('Password')}
+      disabled={disabled}
     >
       <Box
         id="passwd-form"

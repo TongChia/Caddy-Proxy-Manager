@@ -16,7 +16,7 @@ export const i18nInit = i18next
       en: {
         translation: {
           zerossl: 'ZeroSSL',
-          datetime: '{{date, full/short}}',
+          datetime: '{{date, long/short}}',
           uppercase: '{{text, uppercase}}',
           capitalize: '{{text, capitalize}}',
         },
@@ -27,7 +27,7 @@ export const i18nInit = i18next
           Hosts: '主机',
           Users: '用户',
           Settings: '设置',
-          'Access Lists': '授权',
+          'Access Lists': '访问控制',
           'Audit Log': '访问日志',
           'SSL Certificates': 'SSL 证书',
           'Add Host': '添加主机',
@@ -37,6 +37,9 @@ export const i18nInit = i18next
           Name: '名称',
           Email: '邮箱',
           Roles: '角色',
+          Certificates: '证书',
+          'Certificate Provider': '证书提供者',
+          Expires: '到期时间',
         },
       },
     },

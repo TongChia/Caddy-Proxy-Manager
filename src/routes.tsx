@@ -3,6 +3,8 @@ import { Dashboard } from './pages/Dashboard';
 import { Hosts } from './pages/Hosts';
 import { Certificates } from './pages/Certificates';
 import { Users } from './pages/Users';
+import { AccessList } from './pages/AccessList';
+import { Settings } from './pages/Settings';
 
 export const routes: WebRoutes = {
   dashboard: {
@@ -21,7 +23,7 @@ export const routes: WebRoutes = {
     icon: 'lock_open',
     label: 'Access Lists',
     path: '/access',
-    page: () => <h1>Users page !</h1>,
+    page: AccessList,
   },
   certs: {
     icon: 'shield',
@@ -35,16 +37,16 @@ export const routes: WebRoutes = {
     path: '/users',
     page: Users,
   },
-  logs: {
-    icon: 'description',
-    label: 'Audit Log',
-    path: '/logs',
-    page: () => <h1>Audit Log page !</h1>,
-  },
+  // logs: {
+  //   icon: 'description',
+  //   label: 'Audit Log',
+  //   path: '/logs',
+  //   page: () => <h1>Audit Log page !</h1>,
+  // },
   settings: {
     icon: 'settings',
     label: 'Settings',
     path: '/settings',
-    page: () => <h1>Settings page !</h1>,
+    page: Settings,
   },
 };

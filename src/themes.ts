@@ -14,18 +14,23 @@ export function useTheme(): [Theme, (isDark?: any) => void] {
       ? 'linear-gradient(45deg, #FE6B8B 30%, #D31EE9 90%)'
       : 'linear-gradient(45deg, #FF8E53 30%, #FE6B8B 90%)';
     return createTheme({
-      palette: darkMode
-        ? {
-            mode: 'dark',
-          }
-        : {
-            primary: {
-              main: blue['700'],
-            },
-            text: {
-              primary: blueGrey['700'],
-            },
+      palette: {
+        mode: darkMode ? 'dark' : 'light',
+        common: {
+          black: '#113',
+        },
+        text: {
+          primary: blueGrey[100],
+        },
+        ...(!darkMode && {
+          primary: {
+            main: blue['700'],
           },
+          text: {
+            primary: blueGrey['700'],
+          },
+        }),
+      },
       components: {
         // MuiCssBaseline: {},
         MuiAppBar: {

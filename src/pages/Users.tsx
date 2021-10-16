@@ -18,8 +18,7 @@ import { route } from 'preact-router';
 import IconButton from '@mui/material/IconButton';
 import Icon from '@mui/material/Icon';
 import Avatar from '@mui/material/Avatar';
-import Backdrop from '@mui/material/Backdrop';
-import Modal from '@mui/material/Modal';
+import md5 from 'js-md5';
 
 // import Popover from '@mui/material/Popover';
 import { ChangePasswdDialog } from '../components/ChangePasswdDialog';
@@ -44,9 +43,6 @@ export function Users() {
     setAnchorEl(null);
   };
   useEffect(refresh, ['init']);
-
-  // @ts-ignore
-  console.log(process.env.NODE_ENV);
 
   return (
     <Box pt={2}>
@@ -88,18 +84,21 @@ export function Users() {
               }) => (
                 <TableRow key={id}>
                   <TableCell>
-                    <Avatar>H</Avatar>
+                    <Avatar
+                      src={`https://www.gravatar.com/avatar/${md5(
+                        email_address.address,
+                      )}?d=robohash`}
+                      sx={{ border: 1, borderColor: blueGrey[100] }}
+                    />
                   </TableCell>
                   <TableCell>
                     <Typography>{fullname || username}</Typography>
                     <Typography
                       sx={{ color: blueGrey[200], fontSize: 'small' }}
                     >
-                      {t('Created') +
-                        ': ' +
-                        t('datetime', {
-                          date: new Date(created),
-                        })}
+                      {`${t('Created')}: ${t('datetime', {
+                        date: new Date(created),
+                      })}`}
                     </Typography>
                   </TableCell>
                   <TableCell>{email_address.address}</TableCell>
@@ -108,7 +107,7 @@ export function Users() {
                   </TableCell>
                   <TableCell padding="none">
                     <IconButton
-                      onClick={(event) => setAnchorEl(event.currentTarget)}
+                      onClick={(event) => setChangePass({ id, current })}
                     >
                       <Icon>more_vert</Icon>
                     </IconButton>
@@ -120,9 +119,10 @@ export function Users() {
         </Table>
       </TableContainer>
       <ChangePasswdDialog
-        open={open}
+        open={!!changePass.id}
+        id={changePass.id || ''}
         refresh={refresh}
-        onClose={() => toggleOpen(false)}
+        onClose={() => setChangePass({})}
       />
     </Box>
   );

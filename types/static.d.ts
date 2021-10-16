@@ -58,6 +58,7 @@ declare module '*.png' {
 
 /* CUSTOM: ADD YOUR OWN HERE */
 type Domain = string;
+type Path = string;
 type SubRouteHandler = {
   handler: 'subroute';
   routes: Route[];
@@ -220,3 +221,31 @@ type WebRoute = {
 };
 
 type WebRoutes = { [key: string]: WebRoute };
+
+type AccessList = {
+  id?: string;
+  created_on?: string;
+  modified_on?: string;
+  name: string;
+  satisfy_any: boolean;
+  pass_auth: boolean;
+  proxy_host_count?: number;
+  owner: {
+    id: string;
+    name: string;
+    nickname: string;
+    email: string;
+  };
+  items: [
+    {
+      username: string;
+      password?: string;
+    },
+  ];
+  clients: [
+    {
+      address: string;
+      directive: 'allow' | 'deny';
+    },
+  ];
+};

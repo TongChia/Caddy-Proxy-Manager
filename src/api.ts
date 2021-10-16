@@ -1,6 +1,7 @@
-import isEqual from 'lodash/isEqual';
+// import isEqual from 'lodash/isEqual';
 import assign from 'lodash/assign';
 import axios from 'axios';
+// import bcrypt from 'bcryptjs';
 
 type NewHost = {
   host: Domain[];
@@ -196,10 +197,79 @@ export const getCerts = (): Promise<Policy[]> =>
         [],
     );
 
+export const getAccessLists = (): Promise<AccessList[]> =>
+  axios
+    .get<AccessList[]>('/local_backend/access-lists.json')
+    .then(({ data, status }) => data);
+
 export const getUsers = (): Promise<User[]> =>
   axios
     .get<{ users: User[] }>('/local_backend/users.json')
     .then(({ data: { users } }) => users);
+
+type ChangePasswdParams = {
+  id: string;
+  current: string;
+  password: string;
+};
+// export const setPasswd = async ({
+//   id,
+//   current,
+//   password,
+// }: ChangePasswdParams) => {
+//   const { data } = await axios.get<{ users: User[] }>(
+//     '/local_backend/users.json',
+//   );
+//
+//   for (let {
+//     id: _id,
+//     passwords: [_current],
+//   } of data.users) {
+//     if (_id == id) {
+//       if (await bcrypt.compare(current, _current.hash)) {
+//         const salt = await bcrypt.genSalt(_current.cost);
+//         _current.hash = await bcrypt.hash(password, salt);
+//       } else {
+//         throw Error('Password not ok');
+//       }
+//       break;
+//     }
+//   }
+//
+//   const { data: text } = await axios.put(
+//     '/local_backend/users.json',
+//     JSON.stringify(data),
+//   );
+//
+//   if (text != 'Created') throw Error('Update filed');
+//
+//   await axios.post('/api/stop', null, { timeout: 10 });
+// };
+
+export const changePassword = ({ id, current, password }: ChangePasswdParams) =>
+  axios
+    .post(
+      '/authp/settings/password/edit',
+      new URLSearchParams({
+        secret1: current,
+        secret2: password,
+        secret3: password,
+      }),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      },
+    )
+    .then(({ status, data: html }) => {
+      if (status != 200) console.error(status);
+      else {
+        const matched = html.match(/\<h1\>(.*)\<\/h1\>/);
+        if (matched[1] != 'Password Has Been Changed') {
+          throw Error(matched[1]);
+        }
+      }
+    });
 
 export const loginApi = (data: { username: string; password: string }) =>
   axios.post<{ token: string }>(

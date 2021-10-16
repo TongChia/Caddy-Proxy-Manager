@@ -18,8 +18,6 @@ import { useTheme } from './themes';
 import { IconTab } from './components/IconTab';
 import { routes } from './routes';
 import { Login } from './pages/Login';
-import 'rc-dialog/assets/index.css';
-import { parseJwt } from './utils';
 
 function App() {
   const [theme, toggleTheme] = useTheme();
@@ -34,8 +32,6 @@ function App() {
   };
   const isDarkTheme = theme.palette.mode == 'dark';
 
-  console.log(parseJwt(cookies.get('access_token') || ''));
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -43,7 +39,17 @@ function App() {
         {/* @ts-ignore */}
         <Login path="/login" version={__SNOWPACK_ENV__.APP_VERSION} />
         {/* @ts-ignore */}
-        <Box path="/:rest*" pt={8}>
+        <Box
+          path="/:rest*"
+          pt={8}
+          sx={{
+            background:
+              theme.palette.mode == 'light'
+                ? '#f5f7fd'
+                : theme.palette.background,
+            height: '100vh',
+          }}
+        >
           <AppBar>
             <Container maxWidth="lg" disableGutters>
               <Toolbar sx={{}}>

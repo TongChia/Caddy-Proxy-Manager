@@ -9,7 +9,6 @@ export default {
     'react/jsx-runtime': 'preact/jsx-runtime',
     react: 'preact/compat',
     'react-dom': 'preact/compat',
-    '@mui/material/Backdrop': './src/components/FixBackdrop',
   },
   mount: {
     public: { url: '/', static: true },
@@ -44,6 +43,10 @@ export default {
   },
   packageOptions: {
     /* ... */
+    env: {NODE_ENV: true},
+    polyfillNode: true,
+    // external: ["crypto"],
+    knownEntrypoints: ["react-is", "@mui/core", "@mui/core/ModalUnstyled", "@mui/core/BackdropUnstyled", "@mui/core/composeClasses"]
   },
   devOptions: {
     /* ... */

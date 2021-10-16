@@ -15,7 +15,7 @@ import Paper from '@mui/material/Paper';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 import { DomainChip } from '../components/Chips';
-import { ZeroSSLDialog } from '../components/ZeroSSLDialog';
+import { SSLCertDialog } from '../components/SSLCertDialog';
 import { route } from 'preact-router';
 
 export function Certificates() {
@@ -45,45 +45,57 @@ export function Certificates() {
           {t('Add SSL Certificates')}
         </Button>
         <Typography variant="h5" color={blue['700']}>
-          Certificates
+          {t('Certificates')}
         </Typography>
       </Box>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 640 }}>
-          <TableHead>
-            <TableRow sx={{ textTransform: 'uppercase' }}>
-              <TableCell width="16px">&nbsp;</TableCell>
-              <TableCell>{t('Name')}</TableCell>
-              <TableCell>{t('Certificate Provider')}</TableCell>
-              <TableCell>{t('Expires')}</TableCell>
-              <TableCell width="64px">&nbsp;</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map(({ issuers, subjects }) => (
-              <TableRow key={subjects?.join(';')}>
+      {!rows.length ? (
+        <Paper sx={{ py: 8, textAlign: 'center' }}>
+          <Typography variant="h4">There are no Access Lists</Typography>
+          <Typography variant={'subtitle1'}>
+            There are no SSL Certificates
+          </Typography>
+          <Box sx={{ pt: 3 }}>
+            <Button variant={'contained'}>{t('Add SSL Certificates')}</Button>
+          </Box>
+        </Paper>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 640 }}>
+            <TableHead>
+              <TableRow sx={{ textTransform: 'uppercase' }}>
                 <TableCell width="16px">&nbsp;</TableCell>
-                <TableCell>
-                  {subjects?.map((s) => h(DomainChip, { label: s }))}
-                </TableCell>
-                <TableCell>
-                  {issuers?.slice(-1).map((s) => (
-                    <Typography
-                      component="span"
-                      sx={{ textTransform: 'capitalize' }}
-                    >
-                      {t(s.module)}
-                    </Typography>
-                  ))}
-                </TableCell>
-                <TableCell>{new Date().toLocaleString()}</TableCell>
+                <TableCell>{t('Name')}</TableCell>
+                <TableCell>{t('Certificate Provider')}</TableCell>
+                <TableCell>{t('Expires')}</TableCell>
                 <TableCell width="64px">&nbsp;</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <ZeroSSLDialog
+            </TableHead>
+            <TableBody>
+              {rows.map(({ issuers, subjects }) => (
+                <TableRow key={subjects?.join(';')}>
+                  <TableCell width="16px">&nbsp;</TableCell>
+                  <TableCell>
+                    {subjects?.map((s) => h(DomainChip, { label: s }))}
+                  </TableCell>
+                  <TableCell>
+                    {issuers?.slice(-1).map((s) => (
+                      <Typography
+                        component="span"
+                        sx={{ textTransform: 'capitalize' }}
+                      >
+                        {t(s.module)}
+                      </Typography>
+                    ))}
+                  </TableCell>
+                  <TableCell>{new Date().toLocaleString()}</TableCell>
+                  <TableCell width="64px">&nbsp;</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+      <SSLCertDialog
         open={open}
         refresh={refresh}
         onClose={() => toggleOpen(false)}

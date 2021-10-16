@@ -9,6 +9,9 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 import { DomainChip, DestChip, StatusChip } from './Chips';
+import Popover from '../fixMui/Popover';
+import { useToggle } from '../utils';
+import Typography from '@mui/material/Typography';
 
 function SourceChipMapper(sources: string[]) {
   const ss = sources.reduce<{
@@ -53,7 +56,12 @@ export function HostTableRow({
   access,
 }: // status,
 HostRow) {
-  const [open, setOpen] = useState(false);
+  const [collIn, toggleCollIn] = useToggle();
+  const [open, toggleOpen] = useToggle();
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) =>
+    setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
 
   return (
     <>
@@ -61,10 +69,12 @@ HostRow) {
         <TableCell padding="checkbox" sx={{ pl: 2 }}>
           <IconButton
             size="small"
-            onClick={() => setOpen(!open)}
+            onClick={toggleCollIn}
             disabled={destination.length < 2}
           >
-            <Icon>{open ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}</Icon>
+            <Icon>
+              {collIn ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}
+            </Icon>
           </IconButton>
         </TableCell>
         <TableCell>{SourceChipMapper(source)}</TableCell>
@@ -76,15 +86,27 @@ HostRow) {
           <StatusChip label={'Online'} />
         </TableCell>
         <TableCell padding="none">
-          <IconButton>
+          <IconButton
+            onClick={(event: React.MouseEvent<HTMLButtonElement>) =>
+              setAnchorEl(event.currentTarget)
+            }
+          >
             <Icon>more_vert</Icon>
           </IconButton>
+          <Popover
+            open={!!anchorEl}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          >
+            <Typography>Hosts #8</Typography>
+          </Popover>
         </TableCell>
       </TableRow>
       {destination.length >= 2 ? (
         <TableRow key={source.join('-') + 'collapse'}>
           <TableCell style={{ padding: 0, border: 'none' }} colSpan={7}>
-            <Collapse in={open}>
+            <Collapse in={collIn}>
               <Table size="small">
                 <TableBody>
                   {destination.slice(1).map((d) => (
