@@ -1,27 +1,15 @@
-# New Project
+# Caddy Proxy Manager
 
-> ✨ Bootstrapped with Create Snowpack App (CSA).
+[Nginx Proxy Manager](https://github.com/jc21/nginx-proxy-manager) imitator  
+Experimental project  
+Few functions are available
 
-## Available Scripts
+### Frontend
+- [MUI](https://mui.com/)
 
-### npm start
+### Backend
+Try to implement all functions using only the [Caddy Admin API](https://caddyserver.com/docs/api) & [Modules](https://caddyserver.com/docs/modules/)
 
-Runs the app in the development mode.
-Open http://localhost:8080 to view it in the browser.
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
-
-### npm test
-
-Launches the test runner in the interactive watch mode.
-See the section about running tests for more information.
-
-### npm run build
-
-Builds the app for production to the `build/` folder.
-It correctly bundles Preact in production mode and optimizes the build for the best performance.
-
-### Q: What about Eject?
-
-No eject needed! Snowpack guarantees zero lock-in, and CSA strives for the same.
+![demo1](docs/images/demo1.png)
+![demo2](docs/images/demo2.png)
