@@ -12,7 +12,7 @@ import InputLabel from '@mui/material/InputLabel';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import MenuItem from '@mui/material/MenuItem';
 import { blueGrey } from '@mui/material/colors';
-import Select from '../../../fixMui/Select';
+import Select from '@mui/material/Select/Select';
 import keyBy from 'lodash/keyBy';
 
 export type SSLInputs = {

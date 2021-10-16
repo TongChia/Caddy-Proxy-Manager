@@ -7,7 +7,7 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { Android12Switch } from './Android12Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { MyDialog } from './MyDialog';
-import type { DialogProps } from '../fixMui/Dialog';
+import type { DialogProps } from '@mui/material/Dialog/Dialog';
 
 type ACMEDialogProps = {
   open: boolean;

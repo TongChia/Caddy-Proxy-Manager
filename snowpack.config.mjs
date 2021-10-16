@@ -44,7 +44,7 @@ export default {
   packageOptions: {
     /* ... */
     env: {NODE_ENV: true},
-    polyfillNode: true,
+    // polyfillNode: true,
     // external: ["crypto"],
     knownEntrypoints: ["react-is", "@mui/core", "@mui/core/ModalUnstyled", "@mui/core/BackdropUnstyled", "@mui/core/composeClasses"]
   },

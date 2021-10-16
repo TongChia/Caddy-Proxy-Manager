@@ -10,7 +10,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Slide from '@mui/material/Slide';
 import Alert from '@mui/material/Alert';
 import { MyDialog } from './MyDialog';
-import type { DialogProps } from '../fixMui/Dialog';
+import type { DialogProps } from '@mui/material/Dialog/Dialog';
 
 type MyDialogProps = {
   open: boolean;

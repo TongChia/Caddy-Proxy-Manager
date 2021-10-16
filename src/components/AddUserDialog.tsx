@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { useForm } from 'react-hook-form';
-// import Dialog, { DialogProps } from 'rc-dialog';
-import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
-import DialogActions from '@mui/material/DialogActions';
-import Button from '@mui/material/Button';
 import { h } from 'preact';
 import TextField from '@mui/material/TextField';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +9,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Slide from '@mui/material/Slide';
 import Alert from '@mui/material/Alert';
 import { MyDialog } from './MyDialog';
-import type { DialogProps } from '../fixMui/Dialog';
+import type { DialogProps } from '@mui/material/Dialog/Dialog';
 
 type MyDialogProps = {
   open: boolean;

@@ -15,12 +15,8 @@ import { useToggle } from '../utils';
 import { useTranslation } from 'react-i18next';
 import { getAccessLists, getCerts } from '../api';
 import { route } from 'preact-router';
-import Dialog from '../fixMui/Dialog';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import { MyDialog } from '../components/MyDialog';
 

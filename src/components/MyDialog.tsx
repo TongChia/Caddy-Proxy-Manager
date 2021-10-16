@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import Dialog, { DialogProps } from '../fixMui/Dialog';
+import Dialog, { DialogProps } from '@mui/material/Dialog/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';

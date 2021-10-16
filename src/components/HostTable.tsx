@@ -9,7 +9,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 import { DomainChip, DestChip, StatusChip } from './Chips';
-import Popover from '../fixMui/Popover';
+import Popover from '@mui/material/Popover/Popover';
 import { useToggle } from '../utils';
 import Typography from '@mui/material/Typography';
 
