@@ -1,0 +1,83 @@
+{
+    admin :2019 {
+        # TODO: CORS not working
+        # enforce_origin
+        # origins localhost
+    }
+    http_port  80
+    https_port 443
+    auto_https off
+    local_certs
+}
+
+:81 {
+    reverse_proxy 192.168.123.110:8080
+    route /api/* {
+        basicauth {
+            Admin JDJhJDE0JDBuaEdVam5lVm9KdUczZXU0b1hZa3V4bEUvelVUd1d2djBXR1RnS0Z4c2JFa0l5cjFsU3k2
+        }
+    	uri strip_prefix /api
+    	reverse_proxy localhost:2019 {
+            header_up Host {upstream_hostport}
+            header_up X-Forwarded-Host {host}
+        }
+    }
+}
+
+https://test.localhost http://dev.localhost {
+    tls internal
+    reverse_proxy localhost:81
+}
+
+*.example.com {
+	tls internal
+
+	@foo host foo.example.com
+	handle @foo {
+		respond "Foo!"
+		handle /config {
+		    reverse_proxy localhost:2019
+		}
+	}
+
+	@bar host bar.example.com
+	handle @bar {
+		respond "Bar!"
+	}
+
+	# Fallback for otherwise unhandled domains
+	handle {
+		abort
+	}
+}
+
+*.ch1a.xyz {
+
+    tls tongchia@live.com {
+        dns cloudflare -3L0p6g-IGLZhyk7vhrRW0ybLkuu-RI-0dRafe3A
+        resolvers 1.1.1.1
+    }
+
+    @foo host foo.ch1a.xyz
+    handle @foo {
+        respond "Foo!"
+    }
+
+    @bar host bar.ch1a.xyz
+    handle @bar {
+        respond "Bar!"
+    }
+
+}
+
+*.ch1a.me {
+    tls tongchia@live.com {
+        dns cloudflare -3L0p6g-IGLZhyk7vhrRW0ybLkuu-RI-0dRafe3D
+        resolvers 1.1.1.1
+    }
+
+    @www host www.ch1a.me
+    handle @www {
+        reverse_proxy localhost:81
+    }
+}

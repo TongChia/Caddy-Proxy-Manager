@@ -57,6 +57,8 @@ declare module '*.png' {
 }
 
 /* CUSTOM: ADD YOUR OWN HERE */
+type Domain = string;
+type Path = string;
 type SubRouteHandler = {
   handler: 'subroute';
   routes: Route[];
@@ -64,13 +66,16 @@ type SubRouteHandler = {
 
 type RewriteHandler = {
   handler: 'rewrite';
-  url: string;
-  strip_path_prefix: string;
+  url?: string;
+  strip_path_prefix?: string;
 };
 
 type StaticResponseHandler = {
   handler: 'static_response';
-  body: string;
+  abort?: boolean;
+  body?: string;
+  headers?: { [key: string]: string | string[] };
+  status_code?: number;
 };
 
 type ReverseProxyHandler = {
@@ -86,39 +91,161 @@ type FileServerHandler = {
   browse?: string;
 };
 
+type Account = { username: string; password: string };
+type BasicAuthProvider = {
+  accounts: Account[];
+  hash: { algorithm: string };
+  hash_cache?: {};
+};
+
+type AuthenticationHandler = {
+  handler: 'authentication';
+  providers: {
+    http_basic?: BasicAuthProvider;
+  };
+};
+
 type Handler =
   | RewriteHandler
   | SubRouteHandler
   | StaticResponseHandler
   | ReverseProxyHandler
-  | FileServerHandler;
+  | FileServerHandler
+  | AuthenticationHandler;
 
-type Match = { host: string[]; path: string[] };
+type HostMatch = { host: Domain[]; path?: string[] };
+type Match = HostMatch | { path: string[] };
 
 type Route = {
+  '@id'?: string;
   handle: Handler[];
   match?: Match[];
-  terminal: boolean;
+  terminal?: boolean;
 };
 
-type Service = {
+type Server = {
   listen: string[];
   routes: Route[];
   errors?: { routes: {}[] };
+  automatic_https?: { disable?: boolean; skip?: Domain[] };
 };
 
-type Row = {
+type Issuer = {
+  module: 'internal' | 'zerossl' | 'acme';
+  email?: string;
+  challenges?: {
+    dns: {
+      provider: {
+        api_token: string;
+        name: string;
+      };
+      resolvers: string[];
+    };
+  };
+};
+
+type Policy = {
+  issuers?: Issuer[];
+  subjects?: Domain[];
+};
+
+type BcryptPassword = {
+  algorithm: 'bcrypt';
+  cost: number;
+  hash: string;
+  expired_at: string;
+};
+
+type EmailAddress = {
+  address: string;
+  domain: string;
+};
+
+type Role = {
   name: string;
+  organization: string;
+};
+
+type User = {
+  id: string;
+  username: string;
+  fullname?: string;
+  passwords: BcryptPassword[];
+  created: string;
+  last_modified: string;
+  email_address: EmailAddress;
+  email_addresses: EmailAddress[];
+  roles: Role[];
+};
+
+type Servers = {
+  [key: string]: Server;
+};
+
+type Apps = {
+  http: {
+    servers: Servers;
+    http_port?: number;
+    https_port?: number;
+  };
+  tls?: { automation?: { policies: Policy[] } };
+};
+
+type HostRows = HostRow[] & {
+  listens: [number, number];
+  policies: Policy[];
+};
+
+type HostRow = {
+  // name: string;
   // listen: string[];
   source: string[];
   destination: FlatRoute[];
-  _handle?: SubRouteHandler;
-  ssl: string;
+  ssl: Policy[];
   access: string;
-  status: string;
+  // status?: string;
+  _handle?: Handler;
+  _paths?: string[];
 };
 
 type FlatRoute = {
   path: string;
   handle?: Handler;
+};
+
+type WebRoute = {
+  icon: string;
+  label: string;
+  path: string;
+  page: (props: { path: string; default?: boolean }) => JSX.Element;
+};
+
+type WebRoutes = { [key: string]: WebRoute };
+
+type AccessList = {
+  id?: string;
+  created_on?: string;
+  modified_on?: string;
+  name: string;
+  satisfy_any: boolean;
+  pass_auth: boolean;
+  proxy_host_count?: number;
+  owner: {
+    id: string;
+    name: string;
+    nickname: string;
+    email: string;
+  };
+  items: [
+    {
+      username: string;
+      password?: string;
+    },
+  ];
+  clients: [
+    {
+      address: string;
+      directive: 'allow' | 'deny';
+    },
+  ];
 };

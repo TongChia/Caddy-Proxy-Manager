@@ -2,7 +2,11 @@
 // import proxy from 'http2-proxy';
 
 export default {
+  env: {
+    APP_VERSION: "v0.0.1"
+  },
   alias: {
+    'react/jsx-runtime': 'preact/jsx-runtime',
     react: 'preact/compat',
     'react-dom': 'preact/compat',
   },
@@ -39,6 +43,10 @@ export default {
   },
   packageOptions: {
     /* ... */
+    env: {NODE_ENV: true},
+    polyfillNode: true,
+    // external: ["crypto"],
+    knownEntrypoints: ["react-is", "@mui/core", "@mui/core/ModalUnstyled", "@mui/core/BackdropUnstyled", "@mui/core/composeClasses"]
   },
   devOptions: {
     /* ... */

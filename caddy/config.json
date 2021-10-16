@@ -1,0 +1,121 @@
+{
+  "admin": {
+    "identity": {
+      "identifiers": ["localhost"],
+      "issuers": [{ "module": "internal" }]
+    },
+    "remote": {
+      "listen": ":2021",
+      "access_control": [
+        {
+          "public_keys": [
+            "MIIFjzCCA3cCFCUSd0W53Vql5QL5860++nzMQsNVMA0GCSqGSIb3DQEBCwUAMIGDMQswCQYDVQQGEwJDTjETMBEGA1UECAwKQ2hvbmcgUWluZzETMBEGA1UEBwwKQ2hvbmcgUWluZzEYMBYGA1UECgwPQ2h1biBEZSBUZWMgTHRkMQ4wDAYDVQQDDAVzdXBlcjEgMB4GCSqGSIb3DQEJARYRdG9uZ2NoaWFAbGl2ZS5jb20wHhcNMjAxMjE1MDczODIyWhcNMzAxMjEzMDczODIyWjCBgzELMAkGA1UEBhMCQ04xEzARBgNVBAgMCkNob25nIFFpbmcxEzARBgNVBAcMCkNob25nIFFpbmcxGDAWBgNVBAoMD0NodW4gRGUgVGVjIEx0ZDEOMAwGA1UEAwwFc3VwZXIxIDAeBgkqhkiG9w0BCQEWEXRvbmdjaGlhQGxpdmUuY29tMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAy3rA/oeM28TaiJ0srB9d2nmuH2OFILNnI+1/XTbXD3xcDiEGfOP67GPtOKsR/WrIvVfaTjkPOzdgaMHWTz8aH64hmZtvsFx9xvZriKRrJyjIVWl4K7y9cvHrwd118oI14LR6XinxGF2UjUXJbZ4HzxbQ1obcfEozvX1Gpnn9YVSnOsuojK9/WvmTY429XWwUkX3UpVhUba0uixQjbLXrTs0/wg7cKc0WCztTe0mrDUQDjO5kWdNk0C/BAgBINaAA5WVcraSoPgX4iMzPIvxeDjJZ15ZCZQo16lDM4YjKvO6HQ9ZP+xCHZQ/Mp3lc/qjrIzWy/SKdJploFEqmUYMzJav/0GZ21T6QfNntMad1RSvLmAJa9PvY+vapkl6L8zG3t56WerN4+pQHI4qINohJ41MgBHbi3fvUTCv+O7N4fsRc7ONW2jxN+o641hD1hBObTwf/KTPqiMliTH1O6RfetsHygUm7Kd1sF0wvu4IyrGNiCEAlD/inBlPlMzQYZ3PNTDZLDRZ3d0hoRwBWXXye3QyyubRynoNg6j2iX7FLkURwj5DdXqcDu+OgnxjrT0WkDcNzZTsF3Zv3KOtf3bxE0GoVoglj4hh74AVTrHyY31wt3impZzpfGkbKisgRF58h9EbituIba30FnpGeOTq0/TVE0jntcREyFRM/f34JpxkCAwEAATANBgkqhkiG9w0BAQsFAAOCAgEAdIt9r8v795sCZO+jH9gyLpTMehet7/sT7nM2m8Wr+aVrOuL15/yY4XLydGbHmPePqKQa65SywLvwhAlcDbANpwNTcBZJwvJuk9g8dTQwOitgbaxlYduis0oyidXk3woEzk8NupuaOq+c2BAT9bNu+vLQw7Yea8T8zsvrVW26+d6BugNdhZ2Ea4JCim3hWrY7U4yKmRRAD4HreLtruG6NcJryV9S8x7zBZ30Mt9owevko6U3KyJQWAPUqOM47/5KfqCUQf8ZEN8lXkwzb0YvTSbRcUWRJoJ1ICFwwNckPDOwqd2NoLgjFN0DPSVDOfQNpLMUipZjvLuCs7CBLgKRTCGQOAUR1M90TjHFbHAsU8UAXRE94XlR8CVzWEjXlXI7+hz88v1a+rzs2CyVw6SNDsmrkTM3CmXB+JNZU28WAVN4qRF7RstgEo/GYTXxM5vxX0fTNluDv0PKEn8AvZNN0Tc3oTJXo0Pv5PlgfMK4eM8wfn7HT/cOeZnTXJqUWWqiQAVlkoVYOnEmCXadDQRIUjGChVepwsGHpCq3TnO0XrNczSuAuwJRTR8qBFbR1MbeTlir2GgRO1Nu6VOJ0fS2hJ12+jQMyfhSGimATM0qjsGMqsglTJMtqqZlrdZvYvBmIlTe3eHibre92g/oPN5CBtbVHCV1cRdV2x9Em2ve3Vgw="
+          ]
+        }
+      ]
+    }
+  },
+  "apps": {
+    "http": {
+      "servers": {
+        "srv_default": {
+          "listen": [":81"],
+          "logs": {},
+          "routes": [
+            {
+              "@id": "admin_web_ui",
+              "handle": [{
+                "handler": "subroute",
+                "routes": [
+                  {
+                    "handle": [
+                      {
+                        "handler": "subroute",
+                        "routes": [
+                          {
+                            "handle": [
+                              {
+                                "handler": "rewrite",
+                                "strip_path_prefix": "/api"
+                              }
+                            ]
+                          },
+                          {
+                            "group": "group0",
+                            "handle": [
+                              {
+                                "handler": "rewrite",
+                                "uri": "{http.request.uri.path}"
+                              }
+                            ],
+                            "match": [{ "path": ["/api/*"] }]
+                          },
+                          {
+                            "handle": [
+                              {
+                                "@id": "admin_api_auth",
+                                "handler":"authentication",
+                                "providers":{
+                                  "http_basic":{
+                                    "accounts":[
+                                      {
+                                        "password":"JDJhJDE0JDBuaEdVam5lVm9KdUczZXU0b1hZa3V4bEUvelVUd1d2djBXR1RnS0Z4c2JFa0l5cjFsU3k2",
+                                        "username":"Admin"
+                                      }
+                                    ],
+                                    "hash":{
+                                      "algorithm":"bcrypt"
+                                    },
+                                    "hash_cache":{
+
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "handler": "reverse_proxy",
+                                "headers": {
+                                  "request": {
+                                    "set": {
+                                      "Host": ["{http.reverse_proxy.upstream.hostport}"],
+                                      "X-Forwarded-Host": [
+                                        "{http.request.host}"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "upstreams": [{ "dial": "localhost:2021" }]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ],
+                    "match": [{ "path": ["/api/*"] }]
+                  },
+                  {
+                    "handle": [
+                      {
+                        "handler": "reverse_proxy",
+                        "upstreams": [{ "dial": "192.168.123.110:8080" }]
+                      }
+                    ]
+                  }
+                ]
+              }],
+              "match": [{
+                "host": ["localhost", "{env.ADMIN_HOST}"]
+              }]
+            }
+          ],
+          "automatic_https":{
+            "disable": true,
+            "skip":[
+              "localhost"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -6,6 +6,7 @@
     "moduleResolution": "node",
     "jsx": "preserve",
     "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
     "baseUrl": "./",
     /* paths - import rewriting/resolving */
     "paths": {
@@ -23,6 +24,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "importsNotUsedAsValues": "error"
+    "importsNotUsedAsValues": "error",
+    /* MUI */
+    "lib": ["es2020", "dom"],
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true
   }
 }
